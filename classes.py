@@ -1,5 +1,7 @@
 #Python imports
-from math import pi
+from bdb import effective
+from math import pi, sqrt
+from turtle import width
 
 
 class Rectangular:
@@ -29,6 +31,22 @@ class Rectangular:
     def volumen(self):
         volumen = self.lenght_1 * self.lenght_2 * self.lenght_3
         return volumen
+
+
+class Concrete:
+
+    def __init__(self, fc = 28, eu = 0.003, EC_factor = 3900):
+        self.fc = fc
+        self.eu = eu
+        self.EC = EC_factor*sqrt(self.fc)
+
+
+class Steel:
+
+    def __init__(self, fy = 420, ES = 200000):
+        self.fy = fy
+        self.ES = ES
+   
 
 class RebarProperties:
     """
@@ -85,13 +103,48 @@ class Beam:
 
     """
 
-    def __init__(self, geometry, cover, fc, fy, reinforcement):
+    def __init__(self, geometry, cover, concrete, steel, reinforcement):
         self.width = geometry.lenght_1
         self.height = geometry.lenght_2
         self.cover = cover
-        self.fc = fc
-        self.fy = fy
+        self.fc = concrete.fc
+        self.fy = steel.fy
         self.rebar = reinforcement
+    
+
+    #Region Methods
+       
+    def effective_height(self, reinforcement_diameter):
+        effective_height = self.height- self.cover - self.rebar.stirrup_rebar_diameter - reinforcement_diameter/2
+        return effective_height
+    
+    def flexural_ro(self, rebar_area, effective_height):
+        flexural_ro = rebar_area/(self.width*effective_height)
+        return flexural_ro
+
+    def simple_nominal_moment_strenght(self, flexural_ro, effective_height):
+        nominal_moment = 0.9*self.fy*flexural_ro*self.width*effective_height**2*(1-0.59*flexural_ro*self.fc/self.fy)*1000
+        return nominal_moment
+    
+    #Region Properties
+
+    @property
+    def top_effective_height(self):
+        top_effective_height = self.effective_height(self.rebar.top_rebar_diameter)
+        return top_effective_height
+    
+    @property
+    def top_flexural_ro(self):
+        top_flexural_ro = self.flexural_ro(self.rebar.top_total_rebar_area, self.top_effective_height)
+        return top_flexural_ro
+    
+    @property
+    def simple_top_nominal_moment_strenght(self):
+        simple_top_nominal_moment_strenght = self.simple_nominal_moment_strenght(self.top_flexural_ro, self.top_effective_height)
+        return simple_top_nominal_moment_strenght
+
+
+    
         
 
 if __name__ == '__main__':
