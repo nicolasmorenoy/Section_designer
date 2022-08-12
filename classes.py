@@ -1,7 +1,5 @@
 #Python imports
-from bdb import effective
 from math import pi, sqrt
-from turtle import width
 
 
 class Rectangular:
@@ -76,7 +74,7 @@ class ReinforcementProperties:
         self.bottom_bars = bottom_rebars
         self.top_rebar_diameter = top_rebar_number.diameter
         self.top_rebar_area = top_rebar_number.area
-        self.bottom_diameter = bottom_rebar_number.diameter
+        self.bottom_rebar_diameter = bottom_rebar_number.diameter
         self.bottom_rebar_area = bottom_rebar_number.area
         self.stirrup_rebar_diameter = stirrup_rebar_number.diameter
         self.stirrup_rebar_area = stirrup_rebar_number.area
@@ -103,19 +101,20 @@ class Beam:
 
     """
 
-    def __init__(self, geometry, cover, concrete, steel, reinforcement):
+    def __init__(self, geometry, cover, concrete, steel, reinforcement, stirrup_spacing):
         self.width = geometry.lenght_1
         self.height = geometry.lenght_2
         self.cover = cover
         self.fc = concrete.fc
         self.fy = steel.fy
         self.rebar = reinforcement
+        self.stirrup_spacing = stirrup_spacing
     
 
     #Region Methods
        
     def effective_height(self, reinforcement_diameter):
-        effective_height = self.height- self.cover - self.rebar.stirrup_rebar_diameter - reinforcement_diameter/2
+        effective_height = self.height - self.cover - self.rebar.stirrup_rebar_diameter - reinforcement_diameter/2
         return effective_height
     
     def flexural_ro(self, rebar_area, effective_height):
@@ -123,7 +122,7 @@ class Beam:
         return flexural_ro
 
     def simple_nominal_moment_strenght(self, flexural_ro, effective_height):
-        nominal_moment = 0.9*self.fy*flexural_ro*self.width*effective_height**2*(1-0.59*flexural_ro*self.fc/self.fy)*1000
+        nominal_moment = self.fy * flexural_ro * self.width * effective_height**2 * (1-0.59*flexural_ro*self.fy/self.fc) * 1000
         return nominal_moment
     
     #Region Properties
@@ -143,45 +142,38 @@ class Beam:
         simple_top_nominal_moment_strenght = self.simple_nominal_moment_strenght(self.top_flexural_ro, self.top_effective_height)
         return simple_top_nominal_moment_strenght
 
-
+    @property
+    def bottom_effective_height(self):
+        bottom_effective_height = self.effective_height(self.rebar.bottom_rebar_diameter)
+        return bottom_effective_height
+    
+    @property
+    def bottom_flexural_ro(self):
+        bottom_flexural_ro = self.flexural_ro(self.rebar.bottom_total_rebar_area, self.bottom_effective_height)
+        return bottom_flexural_ro
+    
+    @property
+    def simple_bottom_nominal_moment_strenght(self):
+        simple_bottom_nominal_moment_strenght = self.simple_nominal_moment_strenght(self.bottom_flexural_ro, self.bottom_effective_height)
+        return simple_bottom_nominal_moment_strenght
+    
+    @property
+    def nominal_concrete_shear_strenght(self):
+        nominal_shear_strenght = 0.17 * sqrt(self.fc) * self.width * self.bottom_effective_height * 1000
+        return nominal_shear_strenght
+    
+    @property
+    def nominal_reinforcement_shear_strenght(self):
+        reinforcement_shear_strenght = self.rebar.stirrup_rebar_area * self.fy * self.bottom_effective_height / self.stirrup_spacing * 1000
+        return reinforcement_shear_strenght
+    
+    @property
+    def nominal_shear_strenght(self):
+        nominal_shear_strenght = self.nominal_concrete_shear_strenght + self.nominal_reinforcement_shear_strenght
+        return nominal_shear_strenght
     
         
 
 if __name__ == '__main__':
     print("This is not the script you should be executing")
-
-
-
-
-# class RectangularGeometry:
-#     """
-#     Class with all the geometry asspects of the element, including lenght of span; base, height
-#     """
-
-#     def __init__(self, width, height, lenght):
-#         self.widht = width
-#         self.height = height
-#         self.lenght = lenght
-
-
-# class Materials:
-#     """
-#     Class with all the information about the materials to be used in the element.
-#     """
-
-#     def __init__(self, fc, fy, EC, ES):
-#         self.fc = fc
-#         self.fy = fy
-#         self.EC = EC
-#         self.ES = ES
-
-
-# class Geometry:
-#     """
-#     Superclass to define the geometrical properties of a structural element.
-#     """
-
-#     def __init__(self):
-#         pass
-
 
