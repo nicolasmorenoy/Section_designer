@@ -1,11 +1,11 @@
-from classes import Beam, RebarProperties, ReinforcementProperties, Rectangular, Concrete, Steel
+from classes import Beam, Rebar, ReinforcementProperties, Rectangular, Concrete, Steel
 
-top_rebar= RebarProperties(5)
-bottom_rebar = RebarProperties(5)
-stirrup_rebar = RebarProperties(3)
+top_rebar= Rebar(5)
+bottom_rebar = Rebar(5)
+stirrup_rebar = Rebar(3)
 concrete = Concrete(28)
 steel = Steel(420)
-reinforcement = ReinforcementProperties(2,2,top_rebar,bottom_rebar,stirrup_rebar,2)
+reinforcement = ReinforcementProperties(2,2,top_rebar,bottom_rebar,2, stirrup_rebar)
 geometry = Rectangular(0.3,0.4,5)
 beam = Beam(geometry, 0.04, concrete,steel, reinforcement, 0.2)
 

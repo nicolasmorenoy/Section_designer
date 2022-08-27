@@ -2,6 +2,7 @@
 from math import pi, sqrt
 
 
+#Geometry Section
 class Rectangular:
 
     def __init__(self, lenght_1, lenght_2, lenght_3):
@@ -31,13 +32,29 @@ class Rectangular:
         return volumen
 
 
+class Circular:
+
+    def __init__(self, diameter):
+        self.diameter = diameter
+        self.area = self.diameter**2*pi/4
+
+    # def get_area(self, diameter = self.diameter):
+    #     area = diameter**2*pi/4
+    #     return area
+
+
+#Region Materials
 class Concrete:
 
-    def __init__(self, fc = 28, eu = 0.003, EC_factor = 3900):
+    def __init__(self, fc = 28, eu = 0.003):
         self.fc = fc
         self.eu = eu
-        self.EC = EC_factor*sqrt(self.fc)
-
+    
+    
+    @property
+    def elastic_modulus(self, EC_factor = 3900):
+        elastic_modulus = EC_factor*sqrt(self.fc)
+        return elastic_modulus
 
 class Steel:
 
@@ -46,7 +63,8 @@ class Steel:
         self.ES = ES
    
 
-class RebarProperties:
+#Reinforcement
+class Rebar:
     """
     Class that contains the basic reinforcement properties
     """
@@ -61,15 +79,16 @@ class RebarProperties:
 
     @property
     def area(self):
-        area = self.diameter**2*pi/4
+        area = Circular(self.diameter).area
         return area
+
 
 class ReinforcementProperties:
     """
     Class that contains all the reinforcement properties
     """
 
-    def __init__(self, top_rebars, bottom_rebars, top_rebar_number, bottom_rebar_number, stirrup_rebar_number, stirrup_legs):
+    def __init__(self, top_rebars, bottom_rebars, top_rebar_number, bottom_rebar_number, stirrup_legs, stirrup_rebar_number):
         self.top_bars = top_rebars
         self.bottom_bars = bottom_rebars
         self.top_rebar_diameter = top_rebar_number.diameter
@@ -81,9 +100,7 @@ class ReinforcementProperties:
         self.stirrup_legs = stirrup_legs
     
 
-    #Reinforcement properties
-
-    
+    #Reinforcement properties 
     @property
     def top_total_rebar_area(self):
         top_total_rebar_area = self.top_rebar_area * self.top_bars
@@ -95,6 +112,7 @@ class ReinforcementProperties:
         return bottom_total_rebar_area
     
 
+#Section designer region
 class Beam:
     """
     Class that contains all the information about a created beam
@@ -113,15 +131,15 @@ class Beam:
 
     #Region Methods
        
-    def effective_height(self, reinforcement_diameter):
+    def get_effective_height(self, reinforcement_diameter):
         effective_height = self.height - self.cover - self.rebar.stirrup_rebar_diameter - reinforcement_diameter/2
         return effective_height
     
-    def flexural_ro(self, rebar_area, effective_height):
+    def get_flexural_ro(self, rebar_area, effective_height):
         flexural_ro = rebar_area/(self.width*effective_height)
         return flexural_ro
 
-    def simple_nominal_moment_strenght(self, flexural_ro, effective_height):
+    def get_simple_nominal_moment_strenght(self, flexural_ro, effective_height):
         nominal_moment = self.fy * flexural_ro * self.width * effective_height**2 * (1-0.59*flexural_ro*self.fy/self.fc) * 1000
         return nominal_moment
     
@@ -129,32 +147,32 @@ class Beam:
 
     @property
     def top_effective_height(self):
-        top_effective_height = self.effective_height(self.rebar.top_rebar_diameter)
+        top_effective_height = self.get_effective_height(self.rebar.top_rebar_diameter)
         return top_effective_height
     
     @property
     def top_flexural_ro(self):
-        top_flexural_ro = self.flexural_ro(self.rebar.top_total_rebar_area, self.top_effective_height)
+        top_flexural_ro = self.get_flexural_ro(self.rebar.top_total_rebar_area, self.top_effective_height)
         return top_flexural_ro
     
     @property
     def simple_top_nominal_moment_strenght(self):
-        simple_top_nominal_moment_strenght = self.simple_nominal_moment_strenght(self.top_flexural_ro, self.top_effective_height)
+        simple_top_nominal_moment_strenght = self.get_simple_nominal_moment_strenght(self.top_flexural_ro, self.top_effective_height)
         return simple_top_nominal_moment_strenght
 
     @property
     def bottom_effective_height(self):
-        bottom_effective_height = self.effective_height(self.rebar.bottom_rebar_diameter)
+        bottom_effective_height = self.get_effective_height(self.rebar.bottom_rebar_diameter)
         return bottom_effective_height
     
     @property
     def bottom_flexural_ro(self):
-        bottom_flexural_ro = self.flexural_ro(self.rebar.bottom_total_rebar_area, self.bottom_effective_height)
+        bottom_flexural_ro = self.get_flexural_ro(self.rebar.bottom_total_rebar_area, self.bottom_effective_height)
         return bottom_flexural_ro
     
     @property
     def simple_bottom_nominal_moment_strenght(self):
-        simple_bottom_nominal_moment_strenght = self.simple_nominal_moment_strenght(self.bottom_flexural_ro, self.bottom_effective_height)
+        simple_bottom_nominal_moment_strenght = self.get_simple_nominal_moment_strenght(self.bottom_flexural_ro, self.bottom_effective_height)
         return simple_bottom_nominal_moment_strenght
     
     @property
