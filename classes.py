@@ -88,7 +88,7 @@ class ReinforcementProperties:
     Class that contains all the reinforcement properties
     """
 
-    def __init__(self, top_rebars, bottom_rebars, top_rebar_number, bottom_rebar_number, stirrup_legs, stirrup_rebar_number):
+    def __init__(self, top_rebars, bottom_rebars, top_rebar_number, bottom_rebar_number, stirrup_legs = 2, stirrup_rebar_number = Rebar(3)):
         self.top_bars = top_rebars
         self.bottom_bars = bottom_rebars
         self.top_rebar_diameter = top_rebar_number.diameter
@@ -110,7 +110,7 @@ class ReinforcementProperties:
     def bottom_total_rebar_area(self):
         bottom_total_rebar_area = self.bottom_rebar_area * self.bottom_bars
         return bottom_total_rebar_area
-    
+            
 
 #Section designer region
 class Beam:
@@ -119,20 +119,31 @@ class Beam:
 
     """
 
-    def __init__(self, geometry, cover, concrete, steel, reinforcement, stirrup_spacing):
+    def __init__(self, geometry, cover, concrete, steel, reinforcement, stirrup_spacing = 0.2):
         self.width = geometry.lenght_1
         self.height = geometry.lenght_2
         self.cover = cover
         self.fc = concrete.fc
         self.fy = steel.fy
-        self.rebar = reinforcement
         self.stirrup_spacing = stirrup_spacing
+        self.top_bars = reinforcement.top_bars
+        self.bottom_bars = reinforcement.bottom_bars
+        self.top_rebar_diameter = reinforcement.top_rebar_diameter
+        self.top_rebar_area = reinforcement.top_rebar_area
+        self.bottom_rebar_diameter = reinforcement.bottom_rebar_diameter
+        self.bottom_rebar_area = reinforcement.bottom_rebar_area
+        self.stirrup_rebar_diameter = reinforcement.stirrup_rebar_diameter
+        self.stirrup_rebar_area = reinforcement.stirrup_rebar_area
+        self.stirrup_legs = reinforcement.stirrup_legs
+        self.top_total_rebar_area = reinforcement.top_total_rebar_area
+        self.bottom_total_rebar_area = reinforcement.bottom_total_rebar_area
     
 
     #Region Methods
+    #Get Properties Methods
        
     def get_effective_height(self, reinforcement_diameter):
-        effective_height = self.height - self.cover - self.rebar.stirrup_rebar_diameter - reinforcement_diameter/2
+        effective_height = self.height - self.cover - self.stirrup_rebar_diameter - reinforcement_diameter/2
         return effective_height
     
     def get_flexural_ro(self, rebar_area, effective_height):
@@ -143,16 +154,25 @@ class Beam:
         nominal_moment = self.fy * flexural_ro * self.width * effective_height**2 * (1-0.59*flexural_ro*self.fy/self.fc) * 1000
         return nominal_moment
     
+
+    #Display Methods
+    def get_properties(self):
+        properties = {}
+        for k,v in self.__dict__.items():
+            properties[k] = round(v,2)
+        return properties
+
+    
     #Region Properties
 
     @property
     def top_effective_height(self):
-        top_effective_height = self.get_effective_height(self.rebar.top_rebar_diameter)
+        top_effective_height = self.get_effective_height(self.top_rebar_diameter)
         return top_effective_height
     
     @property
     def top_flexural_ro(self):
-        top_flexural_ro = self.get_flexural_ro(self.rebar.top_total_rebar_area, self.top_effective_height)
+        top_flexural_ro = self.get_flexural_ro(self.top_total_rebar_area, self.top_effective_height)
         return top_flexural_ro
     
     @property
@@ -162,12 +182,12 @@ class Beam:
 
     @property
     def bottom_effective_height(self):
-        bottom_effective_height = self.get_effective_height(self.rebar.bottom_rebar_diameter)
+        bottom_effective_height = self.get_effective_height(self.bottom_rebar_diameter)
         return bottom_effective_height
     
     @property
     def bottom_flexural_ro(self):
-        bottom_flexural_ro = self.get_flexural_ro(self.rebar.bottom_total_rebar_area, self.bottom_effective_height)
+        bottom_flexural_ro = self.get_flexural_ro(self.bottom_total_rebar_area, self.bottom_effective_height)
         return bottom_flexural_ro
     
     @property
@@ -182,7 +202,7 @@ class Beam:
     
     @property
     def nominal_reinforcement_shear_strenght(self):
-        reinforcement_shear_strenght = self.rebar.stirrup_rebar_area * self.fy * self.bottom_effective_height / self.stirrup_spacing * 1000
+        reinforcement_shear_strenght = self.stirrup_rebar_area * self.fy * self.bottom_effective_height / self.stirrup_spacing * 1000
         return reinforcement_shear_strenght
     
     @property
@@ -190,6 +210,17 @@ class Beam:
         nominal_shear_strenght = self.nominal_concrete_shear_strenght + self.nominal_reinforcement_shear_strenght
         return nominal_shear_strenght
     
+
+    #Class properties region
+    def __str__(self):
+        return f"""Reinforced concrete beam properties:
+        - Base: {self.width} meters.
+        - Height: {self.height} meters.
+        - Cover {self.cover} meters.
+        - Top reinforcement: {self.top_bars}#{self.top_rebar_diameter} bars.
+
+        """
+
         
 
 if __name__ == '__main__':
