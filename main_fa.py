@@ -35,6 +35,7 @@ def geometry(geometry: BeamGeometry = Body(...)):
     length = geometry.lenght
     section = Rectangular(width, height, length)
     section_dict = {"cross area": section.area_1_2}
+    section_json = section_dict
     return section_dict
 
 
