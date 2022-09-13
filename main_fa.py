@@ -1,12 +1,11 @@
 #Python
-import json
 from typing import Optional
 
 #Pydantic
 from pydantic import BaseModel
 
 #FastAPI
-from fastapi import FastAPI, Body, Query
+from fastapi import FastAPI, Body, Query, Path
 
 from classes import Rectangular
 
@@ -16,9 +15,13 @@ app = FastAPI()
 #Models
 
 class BeamGeometry(BaseModel):
-    width: float
-    height: float
+    width: float = 0.3
+    height: float = 0.4
     lenght: Optional[float] = 5.0
+
+
+class Beam(BeamGeometry):
+    beam_id: int
 
 
 #Path Operations
@@ -29,39 +32,51 @@ def home():
 
 
 @app.post("/beam/geometry")
-def geometry(geometry: BeamGeometry = Body(...)):
-    width = geometry.width
-    height = geometry.height
-    length = geometry.lenght
+def geometry(geometry: Beam = Body(...)):
+    width: float = geometry.width
+    height: float = geometry.height
+    length: float = geometry.lenght
+    beam_id: int = geometry.beam_id
     section = Rectangular(width, height, length)
     section_dict = {"cross area": section.area_1_2}
-    section_json = section_dict
     return section_dict
 
 
-@app.get("/beam/geometry")
+@app.get("/beam")
 def show_geometry_properties(
     width: float = Query(
         ..., 
-        qt=0,
+        gt=0,
         title="Beam width",
         description="This is the beam width",
         example= 0.3
         ),
     height: float = Query(
         ..., 
-        qt=0,
+        gt=0,
         title="Beam height",
         description="This is the beam height",
         example= 0.5
         ),
     lenght: float = Query(
         ..., 
-        qt=0,
+        gt=0,
         title="Beam length",
         description="This is the beam length",
         example= 5
         )
 ):
     geometry = Rectangular(width, height, lenght)
-    return geometry.area_1_2
+    return {"cross area": geometry.area_1_2}
+
+@app.get("/beam/{beam_id}")
+def show_beam(
+    beam_id: int = Path(
+        ..., 
+        gt = 0,
+        title= "Beam id",
+        description= "This is the beam id",
+        example= 1
+        )
+):
+    return {beam_id: "It exists"}
