@@ -37,23 +37,13 @@ class BeamGeometry(BaseModel):
     lenght: Optional[float] = Field(
         ...,
         gt = 0,
-        lt= 2,
-        example = 0.3
+        lt= 20,
+        example = 5
     )
     section: Sections = Field(
         ...,
         example = "rectangular")
-    
-    class Config:
-        schema_extra = {
-            "simple_beam" :{
-                "width" : 0.3,
-                "height": 0.5,
-                "lenght" : 5,
-                "section" : "rectangular"
-            }
-        }
-
+        
 
 class Beam(BeamGeometry):
     beam_id: int = Field(
@@ -64,7 +54,7 @@ class Beam(BeamGeometry):
 
     class Config:
         schema_extra = {
-            "example" :{
+            "simple_beam" :{
                 "width" : 0.3,
                 "height": 0.5,
                 "lenght" : 5,
@@ -81,7 +71,7 @@ def home():
 
 
 ##Request Body
-@app.post("/beam/geometry")
+@app.post("/beam/geometry", response_model=BeamGeometry)
 def beam(
     geometry: Beam = Body(...)
 ):
@@ -92,7 +82,7 @@ def beam(
     if section == "rectangular":
         beam = Rectangular(width, height, length)
     section_dict = {"cross area": beam.area_1_2}
-    return section_dict
+    return geometry
 
 
 ##Query Parameters
