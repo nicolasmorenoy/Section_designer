@@ -9,6 +9,7 @@ from pydantic import Field
 #FastAPI
 from fastapi import FastAPI, Body, Query, Path
 
+#Section Designer App
 from classes import Rectangular
 
 app = FastAPI()
@@ -42,6 +43,16 @@ class BeamGeometry(BaseModel):
     section: Sections = Field(
         ...,
         example = "rectangular")
+    
+    class Config:
+        schema_extra = {
+            "simple_beam" :{
+                "width" : 0.3,
+                "height": 0.5,
+                "lenght" : 5,
+                "section" : "rectangular"
+            }
+        }
 
 
 class Beam(BeamGeometry):
@@ -51,6 +62,16 @@ class Beam(BeamGeometry):
         example = 1
     )
 
+    class Config:
+        schema_extra = {
+            "example" :{
+                "width" : 0.3,
+                "height": 0.5,
+                "lenght" : 5,
+                "section" : "rectangular",
+                "beam_id" : 1
+            }
+        }
 
 #Path Operations
 
