@@ -1,5 +1,6 @@
 #Python
 from enum import Enum
+from importlib.resources import path
 from typing import Optional
 
 #Pydantic
@@ -8,6 +9,7 @@ from pydantic import Field
 
 #FastAPI
 from fastapi import FastAPI, Body, Query, Path
+from fastapi import status
 
 #Section Designer App
 from classes import Rectangular
@@ -43,7 +45,7 @@ class BeamGeometry(BaseModel):
     section: Sections = Field(
         ...,
         example = "rectangular")
-        
+
 
 class Beam(BeamGeometry):
     beam_id: int = Field(
@@ -65,13 +67,20 @@ class Beam(BeamGeometry):
 
 #Path Operations
 
-@app.get("/")
+@app.get(
+    path = "/", 
+    status_code = status.HTTP_200_OK
+    )
 def home():
     return {"Hello": "World"}
 
 
 ##Request Body
-@app.post("/beam/geometry", response_model=BeamGeometry)
+@app.post(
+    path = "/beam/geometry",
+    status_code= status.HTTP_200_OK,
+    response_model=BeamGeometry
+    )
 def beam(
     geometry: Beam = Body(...)
 ):
@@ -86,7 +95,10 @@ def beam(
 
 
 ##Query Parameters
-@app.get("/beam")
+@app.get(
+    path = "/beam",
+    status_code = status.HTTP_200_OK
+    )
 def show_geometry_properties(
     width: float = Query(
         ..., 
@@ -115,7 +127,10 @@ def show_geometry_properties(
 
 
 ##Path Parameters
-@app.get("/beam/{beam_id}")
+@app.get(
+    path = "/beam/{beam_id}",
+    status_code = status.HTTP_200_OK
+    )
 def show_beam(
     beam_id: int = Path(
         ..., 
