@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from pydantic import Field
 
 #FastAPI
-from fastapi import FastAPI, Body, Query, Path
+from fastapi import FastAPI, Body, Query, Path, Form
 from fastapi import status
 
 #Section Designer App
@@ -64,6 +64,14 @@ class Beam(BeamGeometry):
                 "beam_id" : 1
             }
         }
+
+
+class BeamName(BaseModel):
+    beam_name: str = Field(
+        ...,
+        max_length=20,
+        example = "beam_name"
+    )
 
 #Path Operations
 
@@ -141,3 +149,13 @@ def show_beam(
         )
 ):
     return {beam_id: "It exists"}
+
+
+##Formulario
+@app.post(
+    path= "/new_beam",
+    response_model = BeamName,
+    status_code= status.HTTP_200_OK
+)
+def new_beam(beamname: str = Form(...)):
+    return BeamName(beam_name = beamname)
