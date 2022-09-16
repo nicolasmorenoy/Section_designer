@@ -5,10 +5,10 @@ from typing import Optional
 
 #Pydantic
 from pydantic import BaseModel
-from pydantic import Field
+from pydantic import Field, EmailStr
 
 #FastAPI
-from fastapi import FastAPI, Body, Query, Path, Form
+from fastapi import FastAPI, Body, Query, Path, Form, Header, Cookie, UploadFile, File
 from fastapi import status
 
 #Section Designer App
@@ -151,7 +151,7 @@ def show_beam(
     return {beam_id: "It exists"}
 
 
-##Formulario
+##Forms
 @app.post(
     path= "/new_beam",
     response_model = BeamName,
@@ -159,3 +159,41 @@ def show_beam(
 )
 def new_beam(beamname: str = Form(...)):
     return BeamName(beam_name = beamname)
+
+
+##Cookies and headers
+@app.post(
+    path = "/contact",
+    status_code = status.HTTP_200_OK 
+)
+def contact(
+    first_name: str = Form(
+        ...,
+        max_length = 20,
+        min_length = 1
+    ),
+    email: EmailStr = Form(...),
+    message: str = Form(
+        ...,
+        min_length = 20
+    ),
+    user_agent: Optional[str] = Header(default=None),
+    ads: Optional[str] = Cookie(default = None)
+):
+    return user_agent, ads
+
+
+##Files
+@app.post(
+    path = "/files"
+    )
+def post_file(
+    image: UploadFile = File(
+        ...
+    )
+):
+    return {
+        "Filename": image.filename,
+        "Format":image.content_type,
+        "Size(kb)": len(image.file.read())
+    }
