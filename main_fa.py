@@ -89,11 +89,24 @@ def home():
 @app.post(
     path = "/beam/geometry",
     status_code= status.HTTP_200_OK,
-    response_model=BeamGeometry
+    response_model=BeamGeometry,
+    tags=["Beam"],
+    summary= "Create a beam in the app"    
     )
 def beam(
     geometry: Beam = Body(...)
 ):
+    """
+    - Title: 
+    Create Beam
+    - Description:
+    Create a Beam and then saves it in the database
+    - Parameters:
+        - Request body parameter:
+            - Beam Geometry: A Beam model with width, height, length and type of section.
+    - Result:
+    A beam geometry model with width, height, length and type of section
+    """
     width: float = geometry.width
     height: float = geometry.height
     length: float = geometry.lenght
@@ -107,7 +120,8 @@ def beam(
 ##Query Parameters
 @app.get(
     path = "/beam",
-    status_code = status.HTTP_200_OK
+    status_code = status.HTTP_200_OK,
+    tags=["Beam"]  
     )
 def show_geometry_properties(
     width: float = Query(
@@ -139,7 +153,8 @@ def show_geometry_properties(
 ##Path Parameters
 @app.get(
     path = "/beam/{beam_id}",
-    status_code = status.HTTP_200_OK
+    status_code = status.HTTP_200_OK,
+    tags=["Beam"]  
     )
 def show_beam(
     beam_id: int = Path(
@@ -163,7 +178,8 @@ def show_beam(
 @app.post(
     path= "/new_beam",
     response_model = BeamName,
-    status_code= status.HTTP_200_OK
+    status_code= status.HTTP_200_OK,
+    tags=["Beam"]  
 )
 def new_beam(beamname: str = Form(...)):
     return BeamName(beam_name = beamname)
@@ -172,7 +188,8 @@ def new_beam(beamname: str = Form(...)):
 ##Cookies and headers
 @app.post(
     path = "/contact",
-    status_code = status.HTTP_200_OK 
+    status_code = status.HTTP_200_OK,
+    tags=["Info"]   
 )
 def contact(
     first_name: str = Form(
@@ -193,7 +210,8 @@ def contact(
 
 ##Files
 @app.post(
-    path = "/files"
+    path = "/files",
+    tags=["Beam"]  
     )
 def post_file(
     image: UploadFile = File(
