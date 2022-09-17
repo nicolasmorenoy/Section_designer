@@ -1,6 +1,5 @@
 #Python
 from enum import Enum
-from importlib.resources import path
 from typing import Optional
 
 #Pydantic
@@ -8,14 +7,17 @@ from pydantic import BaseModel
 from pydantic import Field, EmailStr
 
 #FastAPI
-from fastapi import FastAPI, Body, Query, Path, Form, Header, Cookie, UploadFile, File
+from fastapi import FastAPI
+from fastapi import Body, Query, Path, Form, Header, Cookie, UploadFile, File
 from fastapi import status
+from fastapi import HTTPException
 
 #Section Designer App
 from classes import Rectangular
 
 app = FastAPI()
 
+beams = [1, 2]
 
 #Models
 
@@ -148,7 +150,13 @@ def show_beam(
         example= 1
         )
 ):
-    return {beam_id: "It exists"}
+    if beam_id in beams:
+        return {beam_id: "It exists"}
+    else:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = "This beam doesn't exists"
+        )
 
 
 ##Forms
