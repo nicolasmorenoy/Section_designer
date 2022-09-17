@@ -121,7 +121,8 @@ def beam(
 @app.get(
     path = "/beam",
     status_code = status.HTTP_200_OK,
-    tags=["Beam"]  
+    tags=["Beam"],
+    deprecated = True  
     )
 def show_geometry_properties(
     width: float = Query(
