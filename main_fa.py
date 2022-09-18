@@ -1,6 +1,8 @@
 #Python
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
+from uuid import UUID
+from datetime import date, datetime
 
 #Pydantic
 from pydantic import BaseModel
@@ -50,20 +52,16 @@ class BeamGeometry(BaseModel):
 
 
 class Beam(BeamGeometry):
-    beam_id: int = Field(
-        ...,
-        gt = 0,
-        example = 1
-    )
-
+    beam_id: UUID = Field(...),
+    created_at: datetime = Field(default=datetime.now())
+    updated_at: Optional[datetime] = Field(default=None)
     class Config:
         schema_extra = {
             "simple_beam" :{
                 "width" : 0.3,
                 "height": 0.5,
                 "lenght" : 5,
-                "section" : "rectangular",
-                "beam_id" : 1
+                "section" : "rectangular"
             }
         }
 
