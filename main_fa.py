@@ -52,7 +52,7 @@ class BeamGeometry(BaseModel):
 
 
 class Beam(BeamGeometry):
-    beam_id: UUID = Field(...),
+    beam_id: UUID = Field(...)
     created_at: datetime = Field(default=datetime.now())
     updated_at: Optional[datetime] = Field(default=None)
     class Config:
@@ -92,8 +92,7 @@ def home():
     summary= "Create a beam in the app"    
     )
 def beam(
-    geometry: Beam = Body(...)
-):
+    geometry: Beam = Body(...)):
     """
     - Title: 
     Create Beam
