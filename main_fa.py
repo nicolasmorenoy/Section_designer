@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Optional, List
 from uuid import UUID
 from datetime import date, datetime
+import json
 
 #Pydantic
 from pydantic import BaseModel
@@ -111,7 +112,19 @@ def beam(
     if section == "rectangular":
         beam = Rectangular(width, height, length)
     section_dict = {"cross area": beam.area_1_2}
-    return geometry
+
+    with open("beams.json", "r+", encoding="utf-8") as f:
+        beam_list = json.loads(f.read())
+        geometry_dict = geometry.dict()
+        geometry_dict["beam_id"] = str(geometry_dict["beam_id"])
+        geometry_dict["created_at"] = str(geometry_dict["created_at"])
+        if geometry_dict["updated_at"]:
+            geometry_dict["updated_at"] = str(geometry_dict["updated_at"])
+        geometry_dict["section"] = section
+        beam_list.append(geometry_dict)
+        f.seek(0)
+        f.write(json.dumps(beam_list))
+        return geometry
 
 
 ##Query Parameters
