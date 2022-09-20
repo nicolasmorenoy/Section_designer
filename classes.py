@@ -3,52 +3,83 @@ from math import pi, sqrt
 
 
 #Geometry Section
-class Rectangular:
 
-    def __init__(self, lenght_1, lenght_2, lenght_3):
+class Rectangular:
+    """
+    - Title: 
+    Rectangular
+    - Description:
+        Class created as a category for a rectangular cross secction geometry of an element.
+    - Parameters:
+        - Lenght 1, 2: The two dimension of the cross rectangular section [m].
+    -  Properties:
+        - Cross sectional Area [m²].
+        - Moment of Inertia around axis 1 and axis 2 [m⁴].
+    """
+    def __init__(self, lenght_1, lenght_2):
         self.lenght_1 = lenght_1
         self.lenght_2 = lenght_2
-        self.lenght_3 = lenght_3
+        
+
+    @property
+    def cross_area(self):
+        cross_area = self.lenght_1 * self.lenght_2
+        return cross_area
     
 
     @property
-    def area_1_2(self):
-        area_1_2 = self.lenght_1 * self.lenght_2
-        return area_1_2
+    def moment_inertia_11(self):
+        moment_inertia_11 = self.lenght_1*self.lenght_2**3/12
+        return moment_inertia_11
     
-    @property
-    def area_1_3(self):
-        area_1_3 = self.lenght_1 * self.lenght_3
-        return area_1_3
-    
-    @property
-    def area_3_2(self):
-        area_3_2 = self.lenght_3 * self.lenght_2
-        return area_3_2
-    
-    @property
-    def volumen(self):
-        volumen = self.lenght_1 * self.lenght_2 * self.lenght_3
-        return volumen
 
+    @property
+    def moment_inertia_22(self):
+        moment_inertia_22 = self.lenght_2*self.lenght_1**3/12
+        return moment_inertia_22
+    
 
 class Circular:
+    """
+    - Title: 
+    Circular
+    - Description:
+        Class created as a category for a circular cross secction geometry of an element.
+    - Parameters:
+        - Diameter of the cross rectangular section [m].
+    - Properties:
+        - Cross sectional Area [m²].
+        - Moment of Inertia(pending) [m⁴].
+    """
 
     def __init__(self, diameter):
         self.diameter = diameter
-        self.area = self.diameter**2*pi/4
+    
 
-    # def get_area(self, diameter = self.diameter):
-    #     area = diameter**2*pi/4
-    #     return area
+    @property
+    def cross_area(self):
+        cross_area = self.diameter**2*pi/4
+        return cross_area
 
 
 #Region Materials
 class Concrete:
+    """
+    - Title: 
+    Concrete
+    - Description:
+    Class that describe the physical properties of the Concrete.
+    - Parameters:
+        - f'c = specified compressive strength og concrete [MPa]
+        - εcu = maximum usable strain at extreme concrete compression fiber
+    - Properties:
+        -Modulus of elasticity of concrete [MPa].
+    """
 
-    def __init__(self, fc = 28, eu = 0.003):
+
+    def __init__(self, fc = 28, εcu = 0.003):
         self.fc = fc
-        self.eu = eu
+        self.εcu = εcu
     
     
     @property
@@ -57,6 +88,15 @@ class Concrete:
         return elastic_modulus
 
 class Steel:
+    """
+    - Title: 
+    Steel
+    - Description:
+    Class that describe the physical properties of the Steel.
+    - Parameters:
+        - fy = specified yield strength of reinforcement [MPa]
+        - ES = Modulus of elasticity of reinforcement [MPa]
+    """
 
     def __init__(self, fy = 420, ES = 200000):
         self.fy = fy
@@ -64,9 +104,17 @@ class Steel:
    
 
 #Reinforcement
-class Rebar:
+class Reinforcement:
     """
-    Class that contains the basic reinforcement properties
+    - Title: 
+    Reinforcement
+    - Description:
+    Class that took the diameter and gives back the properties of the cross section of reinforcement.
+    - Parameters:
+        - bar number = Number of the bar acording to the US Standar : #/8
+    - Properties:
+        - bar diameter = Diameter of the bar that correspond to the number of the bar divide by 8 and then multiplied for 0.0254 m [m].
+        - bar area = Cross sectional Area of the bar [m²].
     """
 
     def __init__(self, bar_number):
@@ -79,71 +127,83 @@ class Rebar:
 
     @property
     def area(self):
-        area = Circular(self.diameter).area
+        area = Circular(self.diameter).cross_area
         return area
 
+class TransverseReinforcement(Reinforcement):
+    """
+    - Title: 
+    Trasnverse Reinforcement
+    - Description:
+    Class that inherits the cross section properties of the Reinforcement Class and adds a new parameter (spacing)
+    - Parameters:
+        - bar number = Number of the bar acording to the US Standar : #/8
+        - spacing: longitudinal spacing of the transverse reinforcement.
+    - Properties:
+        - bar diameter = Diameter of the bar that correspond to the number of the bar divide by 8 and then multiplied for 0.0254 m [m].
+        - bar area = Cross sectional Area of the bar [m²].
+    """
+
+    def __init__(self, bar_number, spacing):
+        self.spacing = spacing
+        super().__init__(bar_number)
+    
 
 class ReinforcementProperties:
     """
-    Class that contains all the reinforcement properties
+    - Title: 
+    Reinforcement Properties
+    - Description:
+    Class that gives the total amount of rebar area. 
+    - Parameters:
+        - bar amount = Amount of reinforcement bars. [Number]
+        - reinforcement: Instance of the Reinforcement or Transverse Reinforcement class.
+    - Properties:
+        - total rebar area = Cross sectional Area of the total amount of rebar [m²].
     """
 
-    def __init__(self, top_rebars, bottom_rebars, top_rebar_number, bottom_rebar_number, stirrup_legs = 2, stirrup_rebar_number = Rebar(3)):
-        self.top_bars = top_rebars
-        self.bottom_bars = bottom_rebars
-        self.top_rebar_diameter = top_rebar_number.diameter
-        self.top_rebar_area = top_rebar_number.area
-        self.bottom_rebar_diameter = bottom_rebar_number.diameter
-        self.bottom_rebar_area = bottom_rebar_number.area
-        self.stirrup_rebar_diameter = stirrup_rebar_number.diameter
-        self.stirrup_rebar_area = stirrup_rebar_number.area
-        self.stirrup_legs = stirrup_legs
+    def __init__(self, bar_amount, reinforcement):
+        self.bar_amount = bar_amount
+        self.reinforcement = reinforcement
     
-
-    #Reinforcement properties 
     @property
-    def top_total_rebar_area(self):
-        top_total_rebar_area = self.top_rebar_area * self.top_bars
-        return top_total_rebar_area
-
-    @property
-    def bottom_total_rebar_area(self):
-        bottom_total_rebar_area = self.bottom_rebar_area * self.bottom_bars
-        return bottom_total_rebar_area
-            
+    def area(self):
+        area = self.bar_amount * self.reinforcement.area
+        return area
+        
+           
 
 #Section designer region
 class Beam:
     """
-    Class that contains all the information about a created beam
-
+    - Title: 
+    Reinforcement Properties
+    - Description:
+    Class that gives the total amount of rebar area. 
+    - Parameters:
+        - bar amount = Amount of reinforcement bars. [Number]
+        - reinforcement: Instance of the Reinforcement or Transverse Reinforcement class.
+    - Properties:
+        - total rebar area = Cross sectional Area of the total amount of rebar [m²].
     """
 
-    def __init__(self, geometry, cover, concrete, steel, reinforcement, stirrup_spacing = 0.2):
-        self.width = geometry.lenght_1
-        self.height = geometry.lenght_2
+    def __init__(self, cross_section, span_lenght, cover, concrete, steel, top_reinforcement, bottom_reinforcement, stirrups):
+        self.width = cross_section.lenght_1
+        self.height = cross_section.lenght_2
+        self.span_lenght = span_lenght
         self.cover = cover
         self.fc = concrete.fc
         self.fy = steel.fy
-        self.stirrup_spacing = stirrup_spacing
-        self.top_bars = reinforcement.top_bars
-        self.bottom_bars = reinforcement.bottom_bars
-        self.top_rebar_diameter = reinforcement.top_rebar_diameter
-        self.top_rebar_area = reinforcement.top_rebar_area
-        self.bottom_rebar_diameter = reinforcement.bottom_rebar_diameter
-        self.bottom_rebar_area = reinforcement.bottom_rebar_area
-        self.stirrup_rebar_diameter = reinforcement.stirrup_rebar_diameter
-        self.stirrup_rebar_area = reinforcement.stirrup_rebar_area
-        self.stirrup_legs = reinforcement.stirrup_legs
-        self.top_total_rebar_area = reinforcement.top_total_rebar_area
-        self.bottom_total_rebar_area = reinforcement.bottom_total_rebar_area
+        self.top_reinforcement = top_reinforcement
+        self.bottom_reinforcement = bottom_reinforcement
+        self.stirrups = stirrups
     
 
     #Region Methods
     #Get Properties Methods
        
     def get_effective_height(self, reinforcement_diameter):
-        effective_height = self.height - self.cover - self.stirrup_rebar_diameter - reinforcement_diameter/2
+        effective_height = self.height - self.cover - self.stirrups.reinforcement.diameter - reinforcement_diameter/2
         return effective_height
     
     def get_flexural_ro(self, rebar_area, effective_height):
@@ -167,12 +227,12 @@ class Beam:
 
     @property
     def top_effective_height(self):
-        top_effective_height = self.get_effective_height(self.top_rebar_diameter)
+        top_effective_height = self.get_effective_height(self.top_reinforcement.reinforcement.diameter)
         return top_effective_height
     
     @property
     def top_flexural_ro(self):
-        top_flexural_ro = self.get_flexural_ro(self.top_total_rebar_area, self.top_effective_height)
+        top_flexural_ro = self.get_flexural_ro(self.top_reinforcement.area, self.top_effective_height)
         return top_flexural_ro
     
     @property
@@ -182,12 +242,12 @@ class Beam:
 
     @property
     def bottom_effective_height(self):
-        bottom_effective_height = self.get_effective_height(self.bottom_rebar_diameter)
+        bottom_effective_height = self.get_effective_height(self.bottom_reinforcement.reinforcement.diameter)
         return bottom_effective_height
     
     @property
     def bottom_flexural_ro(self):
-        bottom_flexural_ro = self.get_flexural_ro(self.bottom_total_rebar_area, self.bottom_effective_height)
+        bottom_flexural_ro = self.get_flexural_ro(self.bottom_reinforcement.area, self.bottom_effective_height)
         return bottom_flexural_ro
     
     @property
@@ -202,7 +262,7 @@ class Beam:
     
     @property
     def nominal_reinforcement_shear_strenght(self):
-        reinforcement_shear_strenght = self.stirrup_rebar_area * self.fy * self.bottom_effective_height / self.stirrup_spacing * 1000
+        reinforcement_shear_strenght = self.stirrups.area * self.fy * self.bottom_effective_height / self.stirrups.spacing * 1000
         return reinforcement_shear_strenght
     
     @property
@@ -212,14 +272,14 @@ class Beam:
     
 
     #Class properties region
-    def __str__(self):
-        return f"""Reinforced concrete beam properties:
-        - Base: {self.width} meters.
-        - Height: {self.height} meters.
-        - Cover {self.cover} meters.
-        - Top reinforcement: {self.top_bars}#{self.top_rebar_diameter} bars.
+    # def __str__(self):
+    #     return f"""Reinforced concrete beam properties:
+    #     - Base: {self.width} meters.
+    #     - Height: {self.height} meters.
+    #     - Cover {self.cover} meters.
+    #     - Top reinforcement: {self.top_bars}#{self.top_rebar_diameter} bars.
 
-        """
+    #     """
 
         
 
