@@ -11,8 +11,8 @@ beam = Beam(geometry, 5, 0.04, concrete,steel, top_rebar, bottom_rebar, stirrup_
 
 
 if __name__ == '__main__':
-    print (beam.simple_top_nominal_moment_strenght)
-    top_rebar= ReinforcementProperties(2,Reinforcement(6))
-    print (beam.simple_top_nominal_moment_strenght)
-
+    print (beam.top_flexural_ro)
+    #beam.simple_bottom_nominal_moment_strenght = ReinforcementProperties(3,Reinforcement(5))
+    beam.top_flexural_ro = ReinforcementProperties(3,Reinforcement(5))
+    print (beam.top_flexural_ro)
     #print(beam.rebar.top_rebar_diameter, beam.rebar.top_rebar_area*10000, beam.top_effective_height, beam.simple_top_nominal_moment_strenght, beam.simple_bottom_nominal_moment_strenght, beam.nominal_shear_strenght)

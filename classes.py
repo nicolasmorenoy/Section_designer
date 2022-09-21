@@ -213,7 +213,7 @@ class Beam:
     def get_simple_nominal_moment_strenght(self, flexural_ro, effective_height):
         nominal_moment = self.fy * flexural_ro * self.width * effective_height**2 * (1-0.59*flexural_ro*self.fy/self.fc) * 1000
         return nominal_moment
-    
+     
 
     #Display Methods
     def get_properties(self):
@@ -262,13 +262,25 @@ class Beam:
     
     @property
     def nominal_reinforcement_shear_strenght(self):
-        reinforcement_shear_strenght = self.stirrups.area * self.fy * self.bottom_effective_height / self.stirrups.spacing * 1000
+        reinforcement_shear_strenght = self.stirrups.area * self.fy * self.bottom_effective_height / self.stirrups.reinforcement.spacing * 1000
         return reinforcement_shear_strenght
     
     @property
     def nominal_shear_strenght(self):
         nominal_shear_strenght = self.nominal_concrete_shear_strenght + self.nominal_reinforcement_shear_strenght
         return nominal_shear_strenght
+    
+
+    ##Change Properties Methods
+
+    @simple_bottom_nominal_moment_strenght.setter
+    def simple_bottom_nominal_moment_strenght(self,reinforcement):
+        self.top_reinforcement = reinforcement
+    
+
+    @top_flexural_ro.setter
+    def top_flexural_ro(self,reinforcement):
+        self.top_reinforcement = reinforcement
     
 
     #Class properties region
