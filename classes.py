@@ -16,27 +16,24 @@ class Rectangular:
         - Cross sectional Area [m²].
         - Moment of Inertia around axis 1 and axis 2 [m⁴].
     """
-    def __init__(self, lenght_1, lenght_2):
+    def __init__(self, lenght_1: float, lenght_2: float) -> None:
         self.lenght_1 = lenght_1
         self.lenght_2 = lenght_2
         
 
     @property
-    def cross_area(self):
-        cross_area = self.lenght_1 * self.lenght_2
-        return cross_area
+    def cross_area(self) ->float:
+        return self.lenght_1 * self.lenght_2
     
 
     @property
-    def moment_inertia_11(self):
-        moment_inertia_11 = self.lenght_1*self.lenght_2**3/12
-        return moment_inertia_11
+    def moment_inertia_11(self) -> float:
+        return self.lenght_1*self.lenght_2**3/12
     
 
     @property
-    def moment_inertia_22(self):
-        moment_inertia_22 = self.lenght_2*self.lenght_1**3/12
-        return moment_inertia_22
+    def moment_inertia_22(self) -> float:
+        return self.lenght_2*self.lenght_1**3/12
     
 
 class Circular:
@@ -52,14 +49,13 @@ class Circular:
         - Moment of Inertia(pending) [m⁴].
     """
 
-    def __init__(self, diameter):
+    def __init__(self, diameter: float) -> None:
         self.diameter = diameter
     
 
     @property
-    def cross_area(self):
-        cross_area = self.diameter**2*pi/4
-        return cross_area
+    def cross_area(self) ->float:
+        return self.diameter**2*pi/4
 
 
 #Region Materials
@@ -71,21 +67,20 @@ class Concrete:
     Class that describe the physical properties of the Concrete.
     - Parameters:
         - f'c = specified compressive strength og concrete [MPa]
-        - εcu = maximum usable strain at extreme concrete compression fiber
+        - ecu = maximum usable strain at extreme concrete compression fiber
     - Properties:
         -Modulus of elasticity of concrete [MPa].
     """
 
 
-    def __init__(self, fc = 28, εcu = 0.003):
+    def __init__(self, fc: float = 28, ecu: float = 0.003) -> None:
         self.fc = fc
-        self.εcu = εcu
+        self.ecu = ecu
     
     
     @property
-    def elastic_modulus(self, EC_factor = 3900):
-        elastic_modulus = EC_factor*sqrt(self.fc)
-        return elastic_modulus
+    def elastic_modulus(self, EC_factor: int = 3900) ->float:
+        return EC_factor*sqrt(self.fc)
 
 class Steel:
     """
@@ -98,13 +93,13 @@ class Steel:
         - ES = Modulus of elasticity of reinforcement [MPa]
     """
 
-    def __init__(self, fy = 420, ES = 200000):
+    def __init__(self, fy: float = 420, ES: float = 200000) -> None:
         self.fy = fy
         self.ES = ES
    
 
 #Reinforcement
-class Reinforcement:
+class Rebar:
     """
     - Title: 
     Reinforcement
@@ -117,20 +112,18 @@ class Reinforcement:
         - bar area = Cross sectional Area of the bar [m²].
     """
 
-    def __init__(self, bar_number):
+    def __init__(self, bar_number: int) -> None:
         self.bar_number = bar_number
     
     @property
-    def diameter(self):
-        diameter = self.bar_number/8*.0254
-        return diameter
+    def diameter(self) ->float:
+        return self.bar_number/8*.0254
 
     @property
-    def area(self):
-        area = Circular(self.diameter).cross_area
-        return area
+    def area(self) ->float:
+        return Circular(self.diameter).cross_area
 
-class TransverseReinforcement(Reinforcement):
+class TransverseRebar(Rebar):
     """
     - Title: 
     Trasnverse Reinforcement
@@ -144,12 +137,12 @@ class TransverseReinforcement(Reinforcement):
         - bar area = Cross sectional Area of the bar [m²].
     """
 
-    def __init__(self, bar_number, spacing):
+    def __init__(self, bar_number: int, spacing: float) -> None:
         self.spacing = spacing
         super().__init__(bar_number)
     
 
-class ReinforcementProperties:
+class Reinforcement:
     """
     - Title: 
     Reinforcement Properties
@@ -162,14 +155,13 @@ class ReinforcementProperties:
         - total rebar area = Cross sectional Area of the total amount of rebar [m²].
     """
 
-    def __init__(self, bar_amount, reinforcement):
+    def __init__(self, bar_amount: int, reinforcement: Rebar) -> None:
         self.bar_amount = bar_amount
         self.reinforcement = reinforcement
     
     @property
-    def area(self):
-        area = self.bar_amount * self.reinforcement.area
-        return area
+    def area(self) ->float:
+        return self.bar_amount * self.reinforcement.area
         
            
 
@@ -187,7 +179,7 @@ class Beam:
         - total rebar area = Cross sectional Area of the total amount of rebar [m²].
     """
 
-    def __init__(self, cross_section, span_lenght, cover, concrete, steel, top_reinforcement, bottom_reinforcement, stirrups):
+    def __init__(self, cross_section: Rectangular, span_lenght: float, cover: float, concrete: Concrete, steel: Steel, top_reinforcement: Reinforcement, bottom_reinforcement: Reinforcement, stirrups: Reinforcement) -> None:
         self.width = cross_section.lenght_1
         self.height = cross_section.lenght_2
         self.span_lenght = span_lenght
@@ -199,78 +191,65 @@ class Beam:
         self.stirrups = stirrups
     
 
-    #Region Methods
+    #Region Properties
+
+    @property
+    def top_effective_height(self) ->float:
+        return self.__get_effective_height(self.top_reinforcement.reinforcement.diameter)
+    
+    @property
+    def top_flexural_ro(self) ->float:
+        return self.__get_flexural_ro(self.top_reinforcement.area, self.top_effective_height)
+    
+    @property
+    def simple_top_nominal_moment_strenght(self) ->float:
+        return self.__get_simple_nominal_moment_strenght(self.top_flexural_ro, self.top_effective_height)
+
+    @property
+    def bottom_effective_height(self) ->float:
+        return self.__get_effective_height(self.bottom_reinforcement.reinforcement.diameter)
+    
+    @property
+    def bottom_flexural_ro(self) ->float:
+        return self.__get_flexural_ro(self.bottom_reinforcement.area, self.bottom_effective_height)
+    
+    @property
+    def simple_bottom_nominal_moment_strenght(self) ->float:
+        return self.__get_simple_nominal_moment_strenght(self.bottom_flexural_ro, self.bottom_effective_height)
+    
+    @property
+    def nominal_concrete_shear_strenght(self) ->float:
+        return 0.17 * sqrt(self.fc) * self.width * self.bottom_effective_height * 1000
+    
+    @property
+    def nominal_reinforcement_shear_strenght(self) ->float:
+        return self.stirrups.area * self.fy * self.bottom_effective_height / self.stirrups.reinforcement.spacing * 1000
+    
+    @property
+    def nominal_shear_strenght(self) ->float:
+        return self.nominal_concrete_shear_strenght + self.nominal_reinforcement_shear_strenght
+    
+ #Region Methods
     #Get Properties Methods
        
-    def get_effective_height(self, reinforcement_diameter):
-        effective_height = self.height - self.cover - self.stirrups.reinforcement.diameter - reinforcement_diameter/2
-        return effective_height
+    def __get_effective_height(self, reinforcement_diameter: float) ->float:
+        return self.height - self.cover - self.stirrups.reinforcement.diameter - reinforcement_diameter/2
     
-    def get_flexural_ro(self, rebar_area, effective_height):
-        flexural_ro = rebar_area/(self.width*effective_height)
-        return flexural_ro
+    def __get_flexural_ro(self, rebar_area, effective_height: float) ->float:
+        return rebar_area/(self.width*effective_height)
 
-    def get_simple_nominal_moment_strenght(self, flexural_ro, effective_height):
-        nominal_moment = self.fy * flexural_ro * self.width * effective_height**2 * (1-0.59*flexural_ro*self.fy/self.fc) * 1000
-        return nominal_moment
+    def __get_simple_nominal_moment_strenght(self, flexural_ro: float, effective_height: float) ->float:
+        return self.fy * flexural_ro * self.width * effective_height**2 * (1-0.59*flexural_ro*self.fy/self.fc) * 1000
      
 
     #Display Methods
     def get_properties(self):
         properties = {}
         for k,v in self.__dict__.items():
-            properties[k] = round(v,2)
+            properties[k] = v
         return properties
 
     
-    #Region Properties
-
-    @property
-    def top_effective_height(self):
-        top_effective_height = self.get_effective_height(self.top_reinforcement.reinforcement.diameter)
-        return top_effective_height
-    
-    @property
-    def top_flexural_ro(self):
-        top_flexural_ro = self.get_flexural_ro(self.top_reinforcement.area, self.top_effective_height)
-        return top_flexural_ro
-    
-    @property
-    def simple_top_nominal_moment_strenght(self):
-        simple_top_nominal_moment_strenght = self.get_simple_nominal_moment_strenght(self.top_flexural_ro, self.top_effective_height)
-        return simple_top_nominal_moment_strenght
-
-    @property
-    def bottom_effective_height(self):
-        bottom_effective_height = self.get_effective_height(self.bottom_reinforcement.reinforcement.diameter)
-        return bottom_effective_height
-    
-    @property
-    def bottom_flexural_ro(self):
-        bottom_flexural_ro = self.get_flexural_ro(self.bottom_reinforcement.area, self.bottom_effective_height)
-        return bottom_flexural_ro
-    
-    @property
-    def simple_bottom_nominal_moment_strenght(self):
-        simple_bottom_nominal_moment_strenght = self.get_simple_nominal_moment_strenght(self.bottom_flexural_ro, self.bottom_effective_height)
-        return simple_bottom_nominal_moment_strenght
-    
-    @property
-    def nominal_concrete_shear_strenght(self):
-        nominal_shear_strenght = 0.17 * sqrt(self.fc) * self.width * self.bottom_effective_height * 1000
-        return nominal_shear_strenght
-    
-    @property
-    def nominal_reinforcement_shear_strenght(self):
-        reinforcement_shear_strenght = self.stirrups.area * self.fy * self.bottom_effective_height / self.stirrups.reinforcement.spacing * 1000
-        return reinforcement_shear_strenght
-    
-    @property
-    def nominal_shear_strenght(self):
-        nominal_shear_strenght = self.nominal_concrete_shear_strenght + self.nominal_reinforcement_shear_strenght
-        return nominal_shear_strenght
-    
-
     ##Change Properties Methods
 
     @simple_bottom_nominal_moment_strenght.setter
