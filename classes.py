@@ -35,6 +35,14 @@ class Rectangular:
     def moment_inertia_22(self) -> float:
         return self.lenght_2*self.lenght_1**3/12
     
+    @property
+    def centroid11(self) -> float:
+        return self.lenght_1 / 2
+    
+    @property
+    def centroid22(self) -> float:
+        return self.lenght_2 / 2
+    
 
 class Circular:
     """
@@ -56,6 +64,14 @@ class Circular:
     @property
     def cross_area(self) ->float:
         return self.diameter**2*pi/4
+    
+    @property
+    def centroid11(self) -> float:
+        return self.diameter / 2
+    
+    @property
+    def centroid22(self) -> float:
+        return self.diameter / 2
 
 
 #Region Materials
@@ -70,6 +86,7 @@ class Concrete:
         - ecu = maximum usable strain at extreme concrete compression fiber
     - Properties:
         -Modulus of elasticity of concrete [MPa].
+        -Cracking stress of concrete
     """
 
 
@@ -81,6 +98,10 @@ class Concrete:
     @property
     def elastic_modulus(self, EC_factor: int = 3900) ->float:
         return EC_factor*sqrt(self.fc)
+    
+    @property
+    def cracking_stress(self) -> float:
+        return 0.62*sqrt(self.fc)
 
 class Steel:
     """
@@ -180,54 +201,84 @@ class Beam:
     """
 
     def __init__(self, cross_section: Rectangular, span_lenght: float, cover: float, concrete: Concrete, steel: Steel, top_reinforcement: Reinforcement, bottom_reinforcement: Reinforcement, stirrups: Reinforcement) -> None:
+        self.cross_section = cross_section
         self.width = cross_section.lenght_1
         self.height = cross_section.lenght_2
         self.span_lenght = span_lenght
         self.cover = cover
-        self.fc = concrete.fc
-        self.fy = steel.fy
+        self.concrete = concrete
+        self.steel = steel
         self.top_reinforcement = top_reinforcement
         self.bottom_reinforcement = bottom_reinforcement
         self.stirrups = stirrups
     
 
     #Region Properties
-
+    ## Geometry Properties
     @property
     def top_effective_height(self) ->float:
         return self.__get_effective_height(self.top_reinforcement.reinforcement.diameter)
     
     @property
-    def top_flexural_ro(self) ->float:
-        return self.__get_flexural_ro(self.top_reinforcement.area, self.top_effective_height)
-    
-    @property
-    def simple_top_nominal_moment_strenght(self) ->float:
-        return self.__get_simple_nominal_moment_strenght(self.top_flexural_ro, self.top_effective_height)
-
-    @property
     def bottom_effective_height(self) ->float:
         return self.__get_effective_height(self.bottom_reinforcement.reinforcement.diameter)
+    
+    @property
+    def top_cracked_inertia(self) ->float:
+        return Rectangular(self.width, self.top_cracked_section_centroid).moment_inertia_11 + self.width * self.top_cracked_section_centroid * (self.top_cracked_section_centroid/2)** 2 + self.elastic_modulus_ratio*self.top_reinforcement.area * (self.top_effective_height-self.top_cracked_section_centroid)**2
+    
+    @property
+    def bottom_cracked_inertia(self) ->float:
+        return Rectangular(self.width, self.bottom_cracked_section_centroid).moment_inertia_11 + self.width * self.bottom_cracked_section_centroid * (self.bottom_cracked_section_centroid/2)** 2 + self.elastic_modulus_ratio*self.bottom_reinforcement.area * (self.bottom_effective_height-self.bottom_cracked_section_centroid)**2
+    
+    #This can be improved if we calculated it including the opposite reinforcement in the beam
+    @property
+    def top_cracked_section_centroid(self) ->float:
+        return self.top_effective_height*(sqrt((self.elastic_modulus_ratio*self.top_flexural_ro)**2+2*self.elastic_modulus_ratio*self.top_flexural_ro)-self.elastic_modulus_ratio*self.top_flexural_ro)
+    
+    @property
+    def bottom_cracked_section_centroid(self) ->float:
+        return self.bottom_effective_height*(sqrt((self.elastic_modulus_ratio*self.bottom_flexural_ro)**2+2*self.elastic_modulus_ratio*self.bottom_flexural_ro)-self.elastic_modulus_ratio*self.bottom_flexural_ro)
+
+    ##Reinforcement Properties
+    @property
+    def top_flexural_ro(self) ->float:
+        return self.__get_flexural_ro(self.top_reinforcement.area, self.top_effective_height)
     
     @property
     def bottom_flexural_ro(self) ->float:
         return self.__get_flexural_ro(self.bottom_reinforcement.area, self.bottom_effective_height)
     
     @property
+    def elastic_modulus_ratio(self) ->float:
+        return self.steel.ES/self.concrete.elastic_modulus
+    
+    ##Nominal Resistance
+    @property
+    def simple_top_nominal_moment_strenght(self) ->float:
+        return self.__get_simple_nominal_moment_strenght(self.top_flexural_ro, self.top_effective_height)
+
+    @property
     def simple_bottom_nominal_moment_strenght(self) ->float:
         return self.__get_simple_nominal_moment_strenght(self.bottom_flexural_ro, self.bottom_effective_height)
     
     @property
     def nominal_concrete_shear_strenght(self) ->float:
-        return 0.17 * sqrt(self.fc) * self.width * self.bottom_effective_height * 1000
+        return 0.17 * sqrt(self.concrete.fc) * self.width * self.bottom_effective_height * 1000
     
     @property
     def nominal_reinforcement_shear_strenght(self) ->float:
-        return self.stirrups.area * self.fy * self.bottom_effective_height / self.stirrups.reinforcement.spacing * 1000
+        return self.stirrups.area * self.steel.fy * self.bottom_effective_height / self.stirrups.reinforcement.spacing * 1000
     
     @property
     def nominal_shear_strenght(self) ->float:
         return self.nominal_concrete_shear_strenght + self.nominal_reinforcement_shear_strenght
+    
+    ##Cracked Section
+    @property
+    def cracking_moment(self) ->float:
+        return self.concrete.cracking_stress * self.cross_section.moment_inertia_11 / (self.height-self.cross_section.centroid22) * 1000
+    
     
  #Region Methods
     #Get Properties Methods
@@ -239,7 +290,8 @@ class Beam:
         return rebar_area/(self.width*effective_height)
 
     def __get_simple_nominal_moment_strenght(self, flexural_ro: float, effective_height: float) ->float:
-        return self.fy * flexural_ro * self.width * effective_height**2 * (1-0.59*flexural_ro*self.fy/self.fc) * 1000
+        return self.steel.fy * flexural_ro * self.width * effective_height**2 * (1-0.59*flexural_ro*self.steel.fy/self.concrete.fc) * 1000
+    
      
 
     #Display Methods
