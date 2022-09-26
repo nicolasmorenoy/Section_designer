@@ -90,14 +90,15 @@ class Concrete:
     """
 
 
-    def __init__(self, fc: float = 28, ecu: float = 0.003) -> None:
+    def __init__(self, fc: float = 28, ecu: float = 0.003, EC_factor: int = 3900) -> None:
         self.fc = fc
         self.ecu = ecu
+        self.EC_factor = EC_factor
     
     
     @property
-    def elastic_modulus(self, EC_factor: int = 3900) ->float:
-        return EC_factor*sqrt(self.fc)
+    def elastic_modulus(self) ->float:
+        return self.EC_factor*sqrt(self.fc)
     
     @property
     def cracking_stress(self) -> float:
@@ -279,9 +280,19 @@ class Beam:
     def cracking_moment(self) ->float:
         return self.concrete.cracking_stress * self.cross_section.moment_inertia_11 / (self.height-self.cross_section.centroid22) * 1000
     
+    @property
+    def top_lambda_delta(self) -> float:
+        return self.__get_lambda_delta(self.bottom_flexural_ro)
     
+    @property
+    def bottom_lambda_delta(self) -> float:
+        return self.__get_lambda_delta(self.top_flexural_ro)
+    
+    
+   
+        
  #Region Methods
-    #Get Properties Methods
+    ##Internal Methods
        
     def __get_effective_height(self, reinforcement_diameter: float) ->float:
         return self.height - self.cover - self.stirrups.reinforcement.diameter - reinforcement_diameter/2
@@ -291,6 +302,38 @@ class Beam:
 
     def __get_simple_nominal_moment_strenght(self, flexural_ro: float, effective_height: float) ->float:
         return self.steel.fy * flexural_ro * self.width * effective_height**2 * (1-0.59*flexural_ro*self.steel.fy/self.concrete.fc) * 1000
+    
+    def __get__effective_inertia(self, Ma: float, Icr: float) ->float:
+        return (self.cracking_moment/Ma)**3 * self.cross_section.moment_inertia_11 + (1 - (self.cracking_moment/Ma)**3) * Icr
+    
+    def __get_lambda_delta(self, ro) ->float:
+        return 1/(1+50*ro)
+    
+    #Get Properties Methods
+    def top_effective_inertia(self, Ma) -> float:
+        if self.__get__effective_inertia(Ma, self.top_cracked_inertia) > self.cross_section.moment_inertia_11:
+            return self.cross_section.moment_inertia_11
+        else:
+            return self.__get__effective_inertia(Ma, self.top_cracked_inertia)
+    
+    def bottom_effective_inertia(self, Ma) -> float:
+        if self.__get__effective_inertia(Ma, self.bottom_cracked_inertia) > self.cross_section.moment_inertia_11:
+            return self.cross_section.moment_inertia_11
+        else:
+            return self.__get__effective_inertia(Ma, self.bottom_cracked_inertia)
+    
+    def top_deflexion_multiplier(self, Ma) -> float:
+        return self.top_lambda_delta/(self.top_effective_inertia(Ma)/self.cross_section.moment_inertia_11)
+    
+    def bottom_deflexion_multiplier(self, Ma) -> float:
+        return self.top_lambda_delta/(self.top_effective_inertia(Ma)/self.cross_section.moment_inertia_11)
+    
+    
+
+
+    
+    
+    
     
      
 
