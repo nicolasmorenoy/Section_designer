@@ -177,7 +177,7 @@ class Reinforcement:
         - total rebar area = Cross sectional Area of the total amount of rebar [m²].
     """
 
-    def __init__(self, bar_amount: int, reinforcement: Rebar) -> None:
+    def __init__(self, bar_amount: int, reinforcement) -> None:
         self.bar_amount = bar_amount
         self.reinforcement = reinforcement
     
@@ -328,15 +328,14 @@ class Beam:
     def bottom_deflexion_multiplier(self, Ma) -> float:
         return self.top_lambda_delta/(self.top_effective_inertia(Ma)/self.cross_section.moment_inertia_11)
     
-    
-
-
-    
-    
-    
+    def display_geometry(self) -> float:
+        return {
+            "width": self.width,
+            "height": self.height,
+            "area": self.cross_section.cross_area
+        } 
     
      
-
     #Display Methods
     def get_properties(self):
         properties = {}
@@ -358,14 +357,27 @@ class Beam:
     
 
     #Class properties region
-    # def __str__(self):
-    #     return f"""Reinforced concrete beam properties:
-    #     - Base: {self.width} meters.
-    #     - Height: {self.height} meters.
-    #     - Cover {self.cover} meters.
-    #     - Top reinforcement: {self.top_bars}#{self.top_rebar_diameter} bars.
+    def __str__(self):
+        return f"""Reinforced concrete beam properties:
+        Geometry:
+        - Base: {self.width} meters.
+        - Height: {self.height} meters.
+        - Cover {self.cover} meters.
+        
+        Reinforcement:
+        - Top reinforcement: {self.top_reinforcement.bar_amount} bar #{self.top_reinforcement.reinforcement.bar_number}.
+        - Bottom reinforcement: {self.bottom_reinforcement.bar_amount} bar #{self.bottom_reinforcement.reinforcement.bar_number}.
+        - Stirrups: {self.stirrups.bar_amount} legs #{self.stirrups.reinforcement.bar_number} spacing: {self.stirrups.reinforcement.spacing} m.
+        
+        Materials:
+        - Concrete f'c: {self.concrete.fc}
+        - Steel Reinforcement fy: {self.steel.fy}
 
-    #     """
+        Nominal Properties:
+        - Top nominal moment strenght: {round(self.simple_top_nominal_moment_strenght,2)} kN-m.
+        - Bottom nominal moment strenght: {round(self.simple_bottom_nominal_moment_strenght, 2)} kN-m.
+        - Shear nominal strenght: {round(self.nominal_shear_strenght)} kN.
+        """
 
         
 
