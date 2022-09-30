@@ -1,5 +1,6 @@
 #Python
 from enum import Enum
+from turtle import width
 from typing import Optional, List
 from uuid import UUID
 from datetime import date, datetime
@@ -24,9 +25,11 @@ beams = [1, 2]
 
 #Models
 
+##Geometry Models
 class Sections(Enum):
     rectangular: str = "rectangular"
     circular: str =  "circular"
+
 
 class BeamGeometry(BaseModel):
     width: float = Field(
@@ -54,8 +57,8 @@ class BeamGeometry(BaseModel):
 
 class Beam(BeamGeometry):
     beam_id: UUID = Field(...)
-    created_at: datetime = Field(default=datetime.now())
-    updated_at: Optional[datetime] = Field(default=None)
+    #created_at: datetime = Field(default=datetime.now())
+    #updated_at: Optional[datetime] = Field(default=None)
     class Config:
         schema_extra = {
             "simple_beam" :{
@@ -87,9 +90,9 @@ def home():
 ##Request Body
 @app.post(
     path = "/beam/geometry",
-    status_code= status.HTTP_200_OK,
-    response_model=BeamGeometry,
-    tags=["Beam"],
+    status_code= status.HTTP_201_CREATED,
+    #response_model=BeamGeometry,
+    tags=["Beam", "Geometry"],
     summary= "Create a beam in the app"    
     )
 def beam(
@@ -105,27 +108,38 @@ def beam(
     - Result:
     A beam geometry model with width, height, length and type of section
     """
-    width: float = geometry.width
-    height: float = geometry.height
-    length: float = geometry.lenght
     section: str = geometry.section.value
-    if section == "rectangular":
-        beam = Rectangular(width, height, length)
-    section_dict = {"cross area": beam.area_1_2}
+    # if section == "rectangular":
+    #     beam = Rectangular(width, height)
 
-    with open("beams.json", "r+", encoding="utf-8") as f:
-        beam_list = json.loads(f.read())
+    with open("beam.json", "r+", encoding="utf-8") as f:
+        beam = json.loads(f.read())
         geometry_dict = geometry.dict()
         geometry_dict["beam_id"] = str(geometry_dict["beam_id"])
-        geometry_dict["created_at"] = str(geometry_dict["created_at"])
-        if geometry_dict["updated_at"]:
-            geometry_dict["updated_at"] = str(geometry_dict["updated_at"])
+        #geometry_dict["created_at"] = str(geometry_dict["created_at"])
+        # if geometry_dict["updated_at"]:
+        #     geometry_dict["updated_at"] = str(geometry_dict["updated_at"])
         geometry_dict["section"] = section
-        beam_list.append(geometry_dict)
+        beam = geometry_dict
         f.seek(0)
-        f.write(json.dumps(beam_list))
-        return geometry
+        f.write(json.dumps(beam))
+    return {"beam_id": str(geometry.beam_id)}
 
+@app.get(
+    path="/beam/properties",
+    status_code= status.HTTP_200_OK,
+    tags = ["Beam", "Properties"],
+    summary = "Properties of the created beam"
+)
+def beam_properties():
+    with open("beam.json", "r", encoding="utf-8") as f:
+        loaded_beam = json.loads(f.read())
+        loaded_beam = dict(loaded_beam)
+        width = loaded_beam["width"]
+        height = loaded_beam["height"]
+        beam = Rectangular(width,height)
+    
+    return beam
 
 ##Query Parameters
 @app.get(
@@ -165,7 +179,8 @@ def show_geometry_properties(
 @app.get(
     path = "/beam/{beam_id}",
     status_code = status.HTTP_200_OK,
-    tags=["Beam"]  
+    tags=["Beam"],
+    deprecated= True  
     )
 def show_beam(
     beam_id: int = Path(
@@ -190,7 +205,8 @@ def show_beam(
     path= "/new_beam",
     response_model = BeamName,
     status_code= status.HTTP_200_OK,
-    tags=["Beam"]  
+    tags=["Beam"],
+    deprecated= True  
 )
 def new_beam(beamname: str = Form(...)):
     return BeamName(beam_name = beamname)
@@ -200,7 +216,8 @@ def new_beam(beamname: str = Form(...)):
 @app.post(
     path = "/contact",
     status_code = status.HTTP_200_OK,
-    tags=["Info"]   
+    tags=["Info"],
+    deprecated= True   
 )
 def contact(
     first_name: str = Form(
@@ -222,7 +239,8 @@ def contact(
 ##Files
 @app.post(
     path = "/files",
-    tags=["Beam"]  
+    tags=["Beam"],
+    deprecated= True 
     )
 def post_file(
     image: UploadFile = File(
