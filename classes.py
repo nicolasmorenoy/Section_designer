@@ -191,12 +191,19 @@ class Reinforcement:
 class Beam:
     """
     - Title: 
-    Reinforcement Properties
+    Beam
     - Description:
-    Class that gives the total amount of rebar area. 
+    Class that gives all the properties for a beam section given an especific input. 
     - Parameters:
-        - bar amount = Amount of reinforcement bars. [Number]
-        - reinforcement: Instance of the Reinforcement or Transverse Reinforcement class.
+        - cross section = Rectangular or Circular class acording to the geometry. [Class isntance]
+        - span lenght = Span lenght of the beam [m]
+        - cover = Cover of the beam from the external face to the transverse reinforcement. [m]
+        - concrete = Concrete class [Class isntance]
+        - steel = Steel class [Class isntance]
+        - top_reinforcement = Reinforcement class instance that indicates the top reinforcement of the beam [Class isntance]
+        - bottom_reinforcement = Reinforcement class that instance indicates the bottom reinforcement of the beam [Class isntance]
+        - stirrups = Reinforcement class that instance indicates the stirrups reinforcement of the beam [Class isntance]
+
     - Properties:
         - total rebar area = Cross sectional Area of the total amount of rebar [m²].
     """
