@@ -155,7 +155,7 @@ class TransverseRebar(Rebar):
         - bar number = Number of the bar acording to the US Standar : #/8
         - spacing: longitudinal spacing of the transverse reinforcement.
     - Properties:
-        - bar diameter = Diameter of the bar that correspond to the number of the bar divide by 8 and then multiplied for 0.0254 m [m].
+        - bar diameter = Diameter of the bar that correspond to the number of the bar divide by 8 and then multiplied for 0.0254 [m].
         - bar area = Cross sectional Area of the bar [m²].
     """
 
