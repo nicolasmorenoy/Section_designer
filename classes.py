@@ -209,28 +209,13 @@ class BeamSection:
     """
     def __init__(self, id: str):
         self.id = id
-
-    # def __init__(self, cross_section: Rectangular, span_lenght: float, cover: float, concrete: Concrete, steel: Steel, top_reinforcement: Reinforcement, bottom_reinforcement: Reinforcement, stirrups: Reinforcement) -> None:
-    #     self.cross_section = cross_section
-    #     self.width = cross_section.lenght_1
-    #     self.height = cross_section.lenght_2
-    #     self.span_lenght = span_lenght
-    #     self.cover = cover
-    #     self.concrete = concrete
-    #     self.steel = steel
-    #     self.top_reinforcement = top_reinforcement
-    #     self.bottom_reinforcement = bottom_reinforcement
-    #     self.stirrups = stirrups
-    
+   
     #Region Get Properties
     def get_section(self, cross_section: Rectangular):
         self.cross_section = cross_section
         self.width = cross_section.lenght_1
         self.height = cross_section.lenght_2
-    
-    def get_length(self, span_lenght: float):
-        self.span_lenght = span_lenght
-    
+       
     def get_cover(self, cover: float):
         self.cover = cover
     

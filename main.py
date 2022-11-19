@@ -9,7 +9,6 @@ geometry = Rectangular(0.4,0.4)
 beam = BeamSection("id")
 beam.get_concrete(concrete)
 beam.get_cover(0.04)
-beam.get_length(5)
 beam.get_reinforcement(top_rebar, "Top")
 beam.get_reinforcement(bottom_rebar, "Bottom")
 beam.get_reinforcement(stirrup_rebar, "Stirrups")
@@ -20,6 +19,4 @@ beam.get_section(geometry)
 
 
 if __name__ == '__main__':
-    print(beam)
-    beam.get_cover(0.1)
     print(beam)
