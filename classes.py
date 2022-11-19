@@ -188,7 +188,7 @@ class Reinforcement:
            
 
 #Section designer region
-class Beam:
+class BeamSection:
     """
     - Title: 
     Beam
@@ -207,18 +207,48 @@ class Beam:
     - Properties:
         - total rebar area = Cross sectional Area of the total amount of rebar [m²].
     """
+    def __init__(self, id: str):
+        self.id = id
 
-    def __init__(self, cross_section: Rectangular, span_lenght: float, cover: float, concrete: Concrete, steel: Steel, top_reinforcement: Reinforcement, bottom_reinforcement: Reinforcement, stirrups: Reinforcement) -> None:
+    # def __init__(self, cross_section: Rectangular, span_lenght: float, cover: float, concrete: Concrete, steel: Steel, top_reinforcement: Reinforcement, bottom_reinforcement: Reinforcement, stirrups: Reinforcement) -> None:
+    #     self.cross_section = cross_section
+    #     self.width = cross_section.lenght_1
+    #     self.height = cross_section.lenght_2
+    #     self.span_lenght = span_lenght
+    #     self.cover = cover
+    #     self.concrete = concrete
+    #     self.steel = steel
+    #     self.top_reinforcement = top_reinforcement
+    #     self.bottom_reinforcement = bottom_reinforcement
+    #     self.stirrups = stirrups
+    
+    #Region Get Properties
+    def get_section(self, cross_section: Rectangular):
         self.cross_section = cross_section
         self.width = cross_section.lenght_1
         self.height = cross_section.lenght_2
+    
+    def get_length(self, span_lenght: float):
         self.span_lenght = span_lenght
+    
+    def get_cover(self, cover: float):
         self.cover = cover
+    
+    def get_concrete(self, concrete: Concrete):
         self.concrete = concrete
+    
+    def get_steel(self, steel: Steel):
         self.steel = steel
-        self.top_reinforcement = top_reinforcement
-        self.bottom_reinforcement = bottom_reinforcement
-        self.stirrups = stirrups
+    
+    def get_reinforcement(self, reinforcement: Reinforcement, location: str):
+        if location == "Top":
+            self.top_reinforcement = reinforcement
+        elif location == "Bottom":
+            self.bottom_reinforcement = reinforcement
+        elif location == "Stirrups":
+            self.stirrups = reinforcement
+        else:
+            raise ValueError
     
 
     #Region Properties
