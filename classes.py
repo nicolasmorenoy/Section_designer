@@ -238,8 +238,7 @@ class Reinforcement(ReinforcementLocation):
     @property
     def area(self) ->float:
         return self.bar_amount * self.reinforcement.area
-        
-           
+            
 
 #Section designer region
 class BeamSection:
@@ -263,7 +262,8 @@ class BeamSection:
     """
     def __init__(self, id: str):
         self.id = id
-   
+        self.reinforcement_dict = {"TOP":[], "BOTTOM":[], "TRANSVERSE":[]}
+
     #Region Get Properties
     def get_section(self, cross_section: Rectangular):
         self.cross_section = cross_section
@@ -281,17 +281,32 @@ class BeamSection:
     
     def get_reinforcement(self, reinforcement: Reinforcement):
         if reinforcement.location == ReinforcementLocationType.TOP:
+            self.reinforcement_dict["TOP"] = []
             self.top_reinforcement = reinforcement
+            self.top_reinforcement_area = reinforcement.area
+            # self.top_reinforcement_bar_amount = self.top_reinforcement.bar_amount
+            # self.top_reinforcement_bar_number = self.top_reinforcement.reinforcement.bar_number
+            self.reinforcement_dict["TOP"].append((reinforcement.bar_amount, reinforcement.reinforcement.bar_number))
         elif reinforcement.location == ReinforcementLocationType.BOTTOM:
+            self.reinforcement_dict["BOTTOM"] = []
             self.bottom_reinforcement = reinforcement
+            self.bottom_reinforcement_area = reinforcement.area
+            # self.bottom_reinforcement_bar_amount = self.top_reinforcement.bar_amount
+            # self.bottom_reinforcement_bar_number = self.bottom_reinforcement.reinforcement.bar_number
+            self.reinforcement_dict["BOTTOM"].append((self.bottom_reinforcement.bar_amount, self.bottom_reinforcement.reinforcement.bar_number))
         elif reinforcement.location == ReinforcementLocationType.TRANSVERSE:
+            self.reinforcement_dict["TRANSVERSE"] = []
             self.stirrups = reinforcement
+            self.stirrups_reinforcement_area = reinforcement.area
+            self.stirrups_reinforcement_bar_amount = self.top_reinforcement.bar_amount
         else:
             raise ValueError
     
     def get_aditional_reinforcement(self, reinforcement: Reinforcement):
         if reinforcement.location == ReinforcementLocationType.TOP:
-            self.top_reinforcement += reinforcement
+            self.top_reinforcement_area += reinforcement.area
+            self.reinforcement_dict["TOP"].append((reinforcement.bar_amount, reinforcement.reinforcement.bar_number))
+
         elif reinforcement.location == ReinforcementLocationType.BOTTOM:
             self.bottom_reinforcement += reinforcement
         elif reinforcement.location == ReinforcementLocationType.TRANSVERSE:
@@ -330,11 +345,11 @@ class BeamSection:
     ##Reinforcement Properties
     @property
     def top_flexural_ro(self) ->float:
-        return self.__get_flexural_ro(self.top_reinforcement.area, self.top_effective_height)
+        return self.__get_flexural_ro(self.top_reinforcement_area, self.top_effective_height)
     
     @property
     def bottom_flexural_ro(self) ->float:
-        return self.__get_flexural_ro(self.bottom_reinforcement.area, self.bottom_effective_height)
+        return self.__get_flexural_ro(self.bottom_reinforcement_area, self.bottom_effective_height)
     
     @property
     def elastic_modulus_ratio(self) ->float:
@@ -452,6 +467,7 @@ class BeamSection:
         
         Reinforcement:
         - Top reinforcement: {self.top_reinforcement.bar_amount} bar #{self.top_reinforcement.reinforcement.bar_number}.
+        - Top reinforcement: {self.reinforcement_dict["TOP"]}
         - Bottom reinforcement: {self.bottom_reinforcement.bar_amount} bar #{self.bottom_reinforcement.reinforcement.bar_number}.
         - Stirrups: {self.stirrups.bar_amount} legs #{self.stirrups.reinforcement.bar_number} spacing: {self.stirrups.reinforcement.spacing} m.
         
