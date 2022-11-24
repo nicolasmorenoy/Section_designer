@@ -1,10 +1,37 @@
 #Python imports
 from math import pi, sqrt
+from enum import Enum
+
 
 
 #Geometry Section
 
-class Rectangular:
+class GeometryType(Enum):
+    """
+    - Title:
+    GeometryType
+    - Description:
+        Class created to enumerate the geometric sections for the elements.
+    - Parameters:
+        None
+    """
+    RECTANGULAR = 1
+    CIRCULAR = 1
+
+class Geometry:
+    """
+    - Title:
+    Geometry
+    - Description:
+        Class created to encapsulate all the geometric sections.
+    - Parameters:
+        Geometry Type [Class]
+    """
+    def __init__(self, geometry_section: GeometryType) -> None:
+        self.geometry = geometry_section
+
+
+class Rectangular(Geometry):
     """
     - Title: 
     Rectangular
@@ -17,6 +44,7 @@ class Rectangular:
         - Moment of Inertia around axis 1 and axis 2 [m⁴].
     """
     def __init__(self, lenght_1: float, lenght_2: float) -> None:
+        super().__init__(GeometryType.RECTANGULAR)
         self.lenght_1 = lenght_1
         self.lenght_2 = lenght_2
         
@@ -121,6 +149,31 @@ class Steel:
    
 
 #Reinforcement
+class ReinforcementLocationType(Enum):
+    """
+    - Title:
+    ReinforcementLocationType
+    - Description:
+        Class created to enumerate the Reinforcement possible location on the element.
+    - Parameters:
+        None
+    """
+    TOP = 1
+    BOTTOM = 2
+    TRANSVERSE = 3
+
+class ReinforcementLocation():
+    """
+    - Title:
+    Geometry
+    - Description:
+        Class created to encapsulate the location of the reinforcement in the element.
+    - Parameters:
+        Reinforcement location Type [Class]
+    """
+    def __init__(self, reinforcement_location: ReinforcementLocationType) -> None:
+        self.location = reinforcement_location
+        
 class Rebar:
     """
     - Title: 
@@ -164,7 +217,7 @@ class TransverseRebar(Rebar):
         super().__init__(bar_number)
     
 
-class Reinforcement:
+class Reinforcement(ReinforcementLocation):
     """
     - Title: 
     Reinforcement Properties
@@ -177,9 +230,10 @@ class Reinforcement:
         - total rebar area = Cross sectional Area of the total amount of rebar [m²].
     """
 
-    def __init__(self, bar_amount: int, reinforcement) -> None:
+    def __init__(self, bar_amount: int, reinforcement: Rebar, location: ReinforcementLocationType) -> None:
         self.bar_amount = bar_amount
         self.reinforcement = reinforcement
+        super().__init__(location)
     
     @property
     def area(self) ->float:
@@ -225,13 +279,23 @@ class BeamSection:
     def get_steel(self, steel: Steel):
         self.steel = steel
     
-    def get_reinforcement(self, reinforcement: Reinforcement, location: str):
-        if location == "Top":
+    def get_reinforcement(self, reinforcement: Reinforcement):
+        if reinforcement.location == ReinforcementLocationType.TOP:
             self.top_reinforcement = reinforcement
-        elif location == "Bottom":
+        elif reinforcement.location == ReinforcementLocationType.BOTTOM:
             self.bottom_reinforcement = reinforcement
-        elif location == "Stirrups":
+        elif reinforcement.location == ReinforcementLocationType.TRANSVERSE:
             self.stirrups = reinforcement
+        else:
+            raise ValueError
+    
+    def get_aditional_reinforcement(self, reinforcement: Reinforcement):
+        if reinforcement.location == ReinforcementLocationType.TOP:
+            self.top_reinforcement += reinforcement
+        elif reinforcement.location == ReinforcementLocationType.BOTTOM:
+            self.bottom_reinforcement += reinforcement
+        elif reinforcement.location == ReinforcementLocationType.TRANSVERSE:
+            self.stirrups += reinforcement
         else:
             raise ValueError
     
