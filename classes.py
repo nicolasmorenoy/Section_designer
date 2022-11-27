@@ -262,27 +262,7 @@ class BeamSection:
     """
     def __init__(self, id: str):
         self.id = id
-        self.reinforcement_dict = {
-        "TOP":{
-            "bar_amount":[],
-            "bar_area":[],
-            "bar_diameters":[],
-            "bar_number":[]
-        }, 
-        "BOTTOM":{
-            "bar_amount":[],
-            "bar_area":[],
-            "bar_diameters":[],
-            "bar_number":[]
-        }, 
-        "TRANSVERSE":{
-            "bar_amount":[],
-            "bar_area":[],
-            "bar_diameters":[],
-            "bar_number":[],
-            "spacing": 0
-        }
-        }
+        self.reinforcement_dict = {}
 
     #Region Get Properties
     def set_section(self, cross_section: Rectangular):
@@ -300,31 +280,27 @@ class BeamSection:
         self.steel = steel
     
     def set_reinforcement(self, reinforcement: Reinforcement):
+        reinforcement_dict = {
+            "bar_amount":[reinforcement.bar_amount,],
+            "bar_area":[reinforcement.area,],
+            "bar_diameters":[reinforcement.reinforcement.diameter,],
+            "bar_number":[reinforcement.reinforcement.bar_number,]
+        }
         if reinforcement.location == ReinforcementLocationType.TOP:
-            self.reinforcement_dict["TOP"]["bar_amount"].append(reinforcement.bar_amount)
-            self.reinforcement_dict["TOP"]["bar_area"].append(reinforcement.area)
-            self.reinforcement_dict["TOP"]["bar_diameters"].append(reinforcement.reinforcement.diameter)
-            self.reinforcement_dict["TOP"]["bar_number"].append(reinforcement.reinforcement.bar_number)
-            
+            self.reinforcement_dict["TOP"] = reinforcement_dict
 
             self.top_reinforcement_area = sum(self.reinforcement_dict["TOP"]["bar_area"])
             
         elif reinforcement.location == ReinforcementLocationType.BOTTOM:
-            self.reinforcement_dict["BOTTOM"]["bar_amount"].append(reinforcement.bar_amount)
-            self.reinforcement_dict["BOTTOM"]["bar_area"].append(reinforcement.area)
-            self.reinforcement_dict["BOTTOM"]["bar_diameters"].append(reinforcement.reinforcement.diameter)
-            self.reinforcement_dict["BOTTOM"]["bar_number"].append(reinforcement.reinforcement.bar_number)
-
+            self.reinforcement_dict["BOTTOM"] = reinforcement_dict
             self.bottom_reinforcement_area = sum(self.reinforcement_dict["BOTTOM"]["bar_area"])
 
         elif reinforcement.location == ReinforcementLocationType.TRANSVERSE:
-            self.reinforcement_dict["TRANSVERSE"]["bar_amount"].append(reinforcement.bar_amount)
-            self.reinforcement_dict["TRANSVERSE"]["bar_area"].append(reinforcement.area)
-            self.reinforcement_dict["TRANSVERSE"]["bar_diameters"].append(reinforcement.reinforcement.diameter)
-            self.reinforcement_dict["TRANSVERSE"]["bar_number"].append(reinforcement.reinforcement.bar_number)
+            self.reinforcement_dict["TRANSVERSE"] = reinforcement_dict
             self.reinforcement_dict["TRANSVERSE"]["spacing"] = reinforcement.reinforcement.spacing
 
             self.transverse_reinforcement_area = sum(self.reinforcement_dict["TRANSVERSE"]["bar_area"])
+            
         else:
             raise ValueError
     
