@@ -20,8 +20,8 @@ beam.set_section(geometry)
 
 if __name__ == '__main__':
     print(beam)
-    # beam.get_aditional_reinforcement(Reinforcement(3,Rebar(5),ReinforcementLocationType.TOP))
-    # print(beam)
+    beam.set_aditional_reinforcement(Reinforcement(1,Rebar(5),ReinforcementLocationType.TOP))
+    print(beam)
     # top_rebar= Reinforcement(5,Rebar(5),ReinforcementLocationType.TOP)
     # beam.get_reinforcement(top_rebar)
     # print(beam)
