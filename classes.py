@@ -262,47 +262,73 @@ class BeamSection:
     """
     def __init__(self, id: str):
         self.id = id
-        self.reinforcement_dict = {"TOP":[], "BOTTOM":[], "TRANSVERSE":[]}
+        self.reinforcement_dict = {
+        "TOP":{
+            "bar_amount":[],
+            "bar_area":[],
+            "bar_diameters":[],
+            "bar_number":[]
+        }, 
+        "BOTTOM":{
+            "bar_amount":[],
+            "bar_area":[],
+            "bar_diameters":[],
+            "bar_number":[]
+        }, 
+        "TRANSVERSE":{
+            "bar_amount":[],
+            "bar_area":[],
+            "bar_diameters":[],
+            "bar_number":[],
+            "spacing": 0
+        }
+        }
 
     #Region Get Properties
-    def get_section(self, cross_section: Rectangular):
+    def set_section(self, cross_section: Rectangular):
         self.cross_section = cross_section
         self.width = cross_section.lenght_1
         self.height = cross_section.lenght_2
        
-    def get_cover(self, cover: float):
+    def set_cover(self, cover: float):
         self.cover = cover
     
-    def get_concrete(self, concrete: Concrete):
+    def set_concrete(self, concrete: Concrete):
         self.concrete = concrete
     
-    def get_steel(self, steel: Steel):
+    def set_steel(self, steel: Steel):
         self.steel = steel
     
-    def get_reinforcement(self, reinforcement: Reinforcement):
+    def set_reinforcement(self, reinforcement: Reinforcement):
         if reinforcement.location == ReinforcementLocationType.TOP:
-            self.reinforcement_dict["TOP"] = []
-            self.top_reinforcement = reinforcement
-            self.top_reinforcement_area = reinforcement.area
-            # self.top_reinforcement_bar_amount = self.top_reinforcement.bar_amount
-            # self.top_reinforcement_bar_number = self.top_reinforcement.reinforcement.bar_number
-            self.reinforcement_dict["TOP"].append((reinforcement.bar_amount, reinforcement.reinforcement.bar_number))
+            self.reinforcement_dict["TOP"]["bar_amount"].append(reinforcement.bar_amount)
+            self.reinforcement_dict["TOP"]["bar_area"].append(reinforcement.area)
+            self.reinforcement_dict["TOP"]["bar_diameters"].append(reinforcement.reinforcement.diameter)
+            self.reinforcement_dict["TOP"]["bar_number"].append(reinforcement.reinforcement.bar_number)
+            
+
+            self.top_reinforcement_area = sum(self.reinforcement_dict["TOP"]["bar_area"])
+            
         elif reinforcement.location == ReinforcementLocationType.BOTTOM:
-            self.reinforcement_dict["BOTTOM"] = []
-            self.bottom_reinforcement = reinforcement
-            self.bottom_reinforcement_area = reinforcement.area
-            # self.bottom_reinforcement_bar_amount = self.top_reinforcement.bar_amount
-            # self.bottom_reinforcement_bar_number = self.bottom_reinforcement.reinforcement.bar_number
-            self.reinforcement_dict["BOTTOM"].append((self.bottom_reinforcement.bar_amount, self.bottom_reinforcement.reinforcement.bar_number))
+            self.reinforcement_dict["BOTTOM"]["bar_amount"].append(reinforcement.bar_amount)
+            self.reinforcement_dict["BOTTOM"]["bar_area"].append(reinforcement.area)
+            self.reinforcement_dict["BOTTOM"]["bar_diameters"].append(reinforcement.reinforcement.diameter)
+            self.reinforcement_dict["BOTTOM"]["bar_number"].append(reinforcement.reinforcement.bar_number)
+
+            self.bottom_reinforcement_area = sum(self.reinforcement_dict["BOTTOM"]["bar_area"])
+
         elif reinforcement.location == ReinforcementLocationType.TRANSVERSE:
-            self.reinforcement_dict["TRANSVERSE"] = []
-            self.stirrups = reinforcement
-            self.stirrups_reinforcement_area = reinforcement.area
-            self.stirrups_reinforcement_bar_amount = self.top_reinforcement.bar_amount
+            self.reinforcement_dict["TRANSVERSE"]["bar_amount"].append(reinforcement.bar_amount)
+            self.reinforcement_dict["TRANSVERSE"]["bar_area"].append(reinforcement.area)
+            self.reinforcement_dict["TRANSVERSE"]["bar_diameters"].append(reinforcement.reinforcement.diameter)
+            self.reinforcement_dict["TRANSVERSE"]["bar_number"].append(reinforcement.reinforcement.bar_number)
+            self.reinforcement_dict["TRANSVERSE"]["spacing"] = reinforcement.reinforcement.spacing
+
+            self.transverse_reinforcement_area = sum(self.reinforcement_dict["TRANSVERSE"]["bar_area"])
         else:
             raise ValueError
     
-    def get_aditional_reinforcement(self, reinforcement: Reinforcement):
+    def set_aditional_reinforcement(self, reinforcement: Reinforcement):
         if reinforcement.location == ReinforcementLocationType.TOP:
             self.top_reinforcement_area += reinforcement.area
             self.reinforcement_dict["TOP"].append((reinforcement.bar_amount, reinforcement.reinforcement.bar_number))
@@ -319,11 +345,13 @@ class BeamSection:
     ## Geometry Properties
     @property
     def top_effective_height(self) ->float:
-        return self.__get_effective_height(self.top_reinforcement.reinforcement.diameter)
+        top_effective_height_list = list(map(self.__get_effective_height, self.reinforcement_dict["TOP"]["bar_diameters"]))          
+        return min(top_effective_height_list)
     
     @property
     def bottom_effective_height(self) ->float:
-        return self.__get_effective_height(self.bottom_reinforcement.reinforcement.diameter)
+        bottom_effective_height_list = list(map(self.__get_effective_height, self.reinforcement_dict["BOTTOM"]["bar_diameters"]))          
+        return min(bottom_effective_height_list)
     
     @property
     def top_cracked_inertia(self) ->float:
@@ -370,7 +398,7 @@ class BeamSection:
     
     @property
     def nominal_reinforcement_shear_strenght(self) ->float:
-        return self.stirrups.area * self.steel.fy * self.bottom_effective_height / self.stirrups.reinforcement.spacing * 1000
+        return self.transverse_reinforcement_area * self.steel.fy * self.bottom_effective_height / self.reinforcement_dict["TRANSVERSE"]["spacing"] * 1000
     
     @property
     def nominal_shear_strenght(self) ->float:
@@ -396,7 +424,7 @@ class BeamSection:
     ##Internal Methods
        
     def __get_effective_height(self, reinforcement_diameter: float) ->float:
-        return self.height - self.cover - self.stirrups.reinforcement.diameter - reinforcement_diameter/2
+        return self.height - self.cover - max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"]) - reinforcement_diameter/2
     
     def __get_flexural_ro(self, rebar_area, effective_height: float) ->float:
         return rebar_area/(self.width*effective_height)
@@ -458,23 +486,30 @@ class BeamSection:
     
 
     #Class properties region
+    # def __str__(self):
+    #     return f"""Reinforced concrete beam properties:
+    #     Geometry:
+    #     - Base: {self.width} meters.
+    #     - Height: {self.height} meters.
+    #     - Cover {self.cover} meters.
+        
+    #     Reinforcement:
+    #     - Top reinforcement: {self.bottom_reinforcement.bar_amount} bar #{self.bottom_reinforcement.reinforcement.bar_number}.
+    #     - Bottom reinforcement: {self.bottom_reinforcement.bar_amount} bar #{self.bottom_reinforcement.reinforcement.bar_number}.
+    #     - Stirrups: {self.stirrups.bar_amount} legs #{self.stirrups.reinforcement.bar_number} spacing: {self.stirrups.reinforcement.spacing} m.
+        
+    #     Materials:
+    #     - Concrete f'c: {self.concrete.fc}
+    #     - Steel Reinforcement fy: {self.steel.fy}
+
+    #     Nominal Properties:
+    #     - Top nominal moment strenght: {round(self.simple_top_nominal_moment_strenght,2)} kN-m.
+    #     - Bottom nominal moment strenght: {round(self.simple_bottom_nominal_moment_strenght, 2)} kN-m.
+    #     - Shear nominal strenght: {round(self.nominal_shear_strenght)} kN.
+    #     """
+
     def __str__(self):
         return f"""Reinforced concrete beam properties:
-        Geometry:
-        - Base: {self.width} meters.
-        - Height: {self.height} meters.
-        - Cover {self.cover} meters.
-        
-        Reinforcement:
-        - Top reinforcement: {self.top_reinforcement.bar_amount} bar #{self.top_reinforcement.reinforcement.bar_number}.
-        - Top reinforcement: {self.reinforcement_dict["TOP"]}
-        - Bottom reinforcement: {self.bottom_reinforcement.bar_amount} bar #{self.bottom_reinforcement.reinforcement.bar_number}.
-        - Stirrups: {self.stirrups.bar_amount} legs #{self.stirrups.reinforcement.bar_number} spacing: {self.stirrups.reinforcement.spacing} m.
-        
-        Materials:
-        - Concrete f'c: {self.concrete.fc}
-        - Steel Reinforcement fy: {self.steel.fy}
-
         Nominal Properties:
         - Top nominal moment strenght: {round(self.simple_top_nominal_moment_strenght,2)} kN-m.
         - Bottom nominal moment strenght: {round(self.simple_bottom_nominal_moment_strenght, 2)} kN-m.
