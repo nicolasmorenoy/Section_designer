@@ -280,57 +280,24 @@ class BeamSection:
         self.steel = steel
     
     def set_reinforcement(self, reinforcement: Reinforcement):
-        reinforcement_dict = {
+        self.reinforcement_dict[reinforcement.location.name] = {
             "bar_amount":[reinforcement.bar_amount,],
             "bar_area":[reinforcement.area,],
             "bar_diameters":[reinforcement.reinforcement.diameter,],
             "bar_number":[reinforcement.reinforcement.bar_number,]
         }
-        if reinforcement.location == ReinforcementLocationType.TOP:
-            self.reinforcement_dict["TOP"] = reinforcement_dict
-            self.top_reinforcement_area = reinforcement.area
-            
-        elif reinforcement.location == ReinforcementLocationType.BOTTOM:
-            self.reinforcement_dict["BOTTOM"] = reinforcement_dict
-            self.bottom_reinforcement_area = reinforcement.area
+        if reinforcement.location == ReinforcementLocationType.TRANSVERSE:
+            self.reinforcement_dict[reinforcement.location.name]["spacing"] = reinforcement.reinforcement.spacing
 
-        elif reinforcement.location == ReinforcementLocationType.TRANSVERSE:
-            self.reinforcement_dict["TRANSVERSE"] = reinforcement_dict
-            self.reinforcement_dict["TRANSVERSE"]["spacing"] = reinforcement.reinforcement.spacing
-            self.transverse_reinforcement_area = reinforcement.area
-
-        else:
-            raise ValueError
     
     def set_aditional_reinforcement(self, reinforcement: Reinforcement):
-        if reinforcement.location == ReinforcementLocationType.TOP:
-            self.reinforcement_dict["TOP"]["bar_amount"].append(reinforcement.bar_amount)
-            self.reinforcement_dict["TOP"]["bar_area"].append(reinforcement.area)
-            self.reinforcement_dict["TOP"]["bar_diameters"].append(reinforcement.reinforcement.diameter)
-            self.reinforcement_dict["TOP"]["bar_number"].append(reinforcement.reinforcement.bar_number)
-            self.top_reinforcement_area = sum(self.reinforcement_dict["TOP"]["bar_area"])
+        self.reinforcement_dict[reinforcement.location.name]["bar_amount"].append(reinforcement.bar_amount)
+        self.reinforcement_dict[reinforcement.location.name]["bar_area"].append(reinforcement.area)
+        self.reinforcement_dict[reinforcement.location.name]["bar_diameters"].append(reinforcement.reinforcement.diameter)
+        self.reinforcement_dict[reinforcement.location.name]["bar_number"].append(reinforcement.reinforcement.bar_number)
 
-
-        elif reinforcement.location == ReinforcementLocationType.BOTTOM:
-            self.reinforcement_dict["BOTTOM"]["bar_amount"].append(reinforcement.bar_amount)
-            self.reinforcement_dict["BOTTOM"]["bar_area"].append(reinforcement.area)
-            self.reinforcement_dict["BOTTOM"]["bar_diameters"].append(reinforcement.reinforcement.diameter)
-            self.reinforcement_dict["BOTTOM"]["bar_number"].append(reinforcement.reinforcement.bar_number)
-            self.top_reinforcement_area = sum(self.reinforcement_dict["BOTTOM"]["bar_area"])
-
-
-        elif reinforcement.location == ReinforcementLocationType.TRANSVERSE:
-            self.reinforcement_dict["TRANSVERSE"]["bar_amount"].append(reinforcement.bar_amount)
-            self.reinforcement_dict["TRANSVERSE"]["bar_area"].append(reinforcement.area)
-            self.reinforcement_dict["TRANSVERSE"]["bar_diameters"].append(reinforcement.reinforcement.diameter)
-            self.reinforcement_dict["TRANSVERSE"]["bar_number"].append(reinforcement.reinforcement.bar_number)
-            self.reinforcement_dict["TRANSVERSE"]["spacing"] = reinforcement.reinforcement.spacing
-            self.top_reinforcement_area = sum(self.reinforcement_dict["TRANSVERSE"]["bar_area"])
-
-
-        else:
-            raise ValueError
-    
+        if reinforcement.location == ReinforcementLocationType.TRANSVERSE:
+            self.reinforcement_dict[reinforcement.location.name]["spacing"] = reinforcement.reinforcement.spacing
 
     #Region Properties
     ## Geometry Properties
@@ -387,7 +354,7 @@ class BeamSection:
     
     @property
     def nominal_reinforcement_shear_strenght(self) ->float:
-        return self.transverse_reinforcement_area * self.steel.fy * max(self.bottom_effective_height) / self.reinforcement_dict["TRANSVERSE"]["spacing"] * 1000
+        return sum(self.reinforcement_dict["TRANSVERSE"]["bar_area"]) * self.steel.fy * max(self.bottom_effective_height) / self.reinforcement_dict["TRANSVERSE"]["spacing"] * 1000
     
     @property
     def nominal_shear_strenght(self) ->float:
