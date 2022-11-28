@@ -336,13 +336,11 @@ class BeamSection:
     ## Geometry Properties
     @property
     def top_effective_height(self) ->float:
-        top_effective_height_list = list(map(self.__get_effective_height, self.reinforcement_dict["TOP"]["bar_diameters"]))          
-        return min(top_effective_height_list)
+        return list(map(self.__get_effective_height, self.reinforcement_dict["TOP"]["bar_diameters"])) 
     
     @property
-    def bottom_effective_height(self) ->float:
-        bottom_effective_height_list = list(map(self.__get_effective_height, self.reinforcement_dict["BOTTOM"]["bar_diameters"]))          
-        return min(bottom_effective_height_list)
+    def bottom_effective_height(self) ->float:      
+        return list(map(self.__get_effective_height, self.reinforcement_dict["BOTTOM"]["bar_diameters"]))
     
     @property
     def top_cracked_inertia(self) ->float:
@@ -364,11 +362,11 @@ class BeamSection:
     ##Reinforcement Properties
     @property
     def top_flexural_ro(self) ->float:
-        return self.__get_flexural_ro(self.top_reinforcement_area, self.top_effective_height)
+        return list(map(self.__get_flexural_ro,self.reinforcement_dict["TOP"]["bar_area"], self.top_effective_height))
     
     @property
     def bottom_flexural_ro(self) ->float:
-        return self.__get_flexural_ro(self.bottom_reinforcement_area, self.bottom_effective_height)
+        return list(map(self.__get_flexural_ro,self.reinforcement_dict["BOTTOM"]["bar_area"], self.bottom_effective_height))
     
     @property
     def elastic_modulus_ratio(self) ->float:
@@ -377,19 +375,19 @@ class BeamSection:
     ##Nominal Resistance
     @property
     def simple_top_nominal_moment_strenght(self) ->float:
-        return self.__get_simple_nominal_moment_strenght(self.top_flexural_ro, self.top_effective_height)
+        return sum(list(map(self.__get_simple_nominal_moment_strenght,self.top_flexural_ro, self.top_effective_height)))
 
     @property
     def simple_bottom_nominal_moment_strenght(self) ->float:
-        return self.__get_simple_nominal_moment_strenght(self.bottom_flexural_ro, self.bottom_effective_height)
+        return sum(list(map(self.__get_simple_nominal_moment_strenght,self.bottom_flexural_ro, self.bottom_effective_height)))
     
     @property
     def nominal_concrete_shear_strenght(self) ->float:
-        return 0.17 * sqrt(self.concrete.fc) * self.width * self.bottom_effective_height * 1000
+        return 0.17 * sqrt(self.concrete.fc) * self.width * max(self.bottom_effective_height) * 1000
     
     @property
     def nominal_reinforcement_shear_strenght(self) ->float:
-        return self.transverse_reinforcement_area * self.steel.fy * self.bottom_effective_height / self.reinforcement_dict["TRANSVERSE"]["spacing"] * 1000
+        return self.transverse_reinforcement_area * self.steel.fy * max(self.bottom_effective_height) / self.reinforcement_dict["TRANSVERSE"]["spacing"] * 1000
     
     @property
     def nominal_shear_strenght(self) ->float:
@@ -417,7 +415,7 @@ class BeamSection:
     def __get_effective_height(self, reinforcement_diameter: float) ->float:
         return self.height - self.cover - max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"]) - reinforcement_diameter/2
     
-    def __get_flexural_ro(self, rebar_area, effective_height: float) ->float:
+    def __get_flexural_ro(self, rebar_area:float, effective_height: float) ->float:
         return rebar_area/(self.width*effective_height)
 
     def __get_simple_nominal_moment_strenght(self, flexural_ro: float, effective_height: float) ->float:
