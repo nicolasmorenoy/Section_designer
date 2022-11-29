@@ -19,11 +19,14 @@ beam.set_section(geometry)
 
 
 if __name__ == '__main__':
-    print(top_rebar.location.name)
     print(beam)
-    beam.set_aditional_reinforcement(Reinforcement(1,Rebar(6),ReinforcementLocationType.TOP))
-    beam.set_aditional_reinforcement(Reinforcement(1,Rebar(6),ReinforcementLocationType.BOTTOM))
+    print(beam.top_lambda_delta)
+    print(beam.top_deflexion_multiplier(100))
+    beam.set_aditional_reinforcement(Reinforcement(1,Rebar(5),ReinforcementLocationType.TOP))
+    beam.set_aditional_reinforcement(Reinforcement(1,Rebar(5),ReinforcementLocationType.BOTTOM))
     print(beam)
+    print(beam.top_lambda_delta)
+    print(beam.top_deflexion_multiplier(100))
     # top_rebar= Reinforcement(5,Rebar(5),ReinforcementLocationType.TOP)
     # beam.get_reinforcement(top_rebar)
     # print(beam)
