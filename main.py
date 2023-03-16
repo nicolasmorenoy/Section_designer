@@ -14,6 +14,8 @@ beam.set_reinforcement(bottom_rebar)
 beam.set_reinforcement(stirrup_rebar)
 beam.set_steel(steel)
 beam.set_section(geometry)
+beam.set_aditional_reinforcement(Reinforcement(1,Rebar(8),ReinforcementLocationType.TOP))
+beam.set_aditional_reinforcement(Reinforcement(1,Rebar(10),ReinforcementLocationType.TOP))
 
 
 

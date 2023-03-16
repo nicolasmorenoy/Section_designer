@@ -311,11 +311,11 @@ class BeamSection:
     
     @property
     def top_cracked_inertia(self) ->float:
-        return Rectangular(self.width, self.top_cracked_section_centroid).moment_inertia_11 + self.width * self.top_cracked_section_centroid * (self.top_cracked_section_centroid/2)** 2 + self.elastic_modulus_ratio*sum(self.reinforcement_dict["TOP"]["bar_area"])* (max(self.top_effective_height)-self.top_cracked_section_centroid)**2
+        return Rectangular(self.width, self.top_cracked_section_centroid).moment_inertia_11 + self.width * self.top_cracked_section_centroid * (self.top_cracked_section_centroid/2)** 2 + (self.elastic_modulus_ratio-1)*sum(self.reinforcement_dict["TOP"]["bar_area"])* (max(self.top_effective_height)-self.top_cracked_section_centroid)**2
     
     @property
     def bottom_cracked_inertia(self) ->float:
-        return Rectangular(self.width, self.bottom_cracked_section_centroid).moment_inertia_11 + self.width * self.bottom_cracked_section_centroid * (self.bottom_cracked_section_centroid/2)** 2 + self.elastic_modulus_ratio*sum(self.reinforcement_dict["TOP"]["bar_area"])* (max(self.bottom_effective_height)-self.bottom_cracked_section_centroid)**2
+        return Rectangular(self.width, self.bottom_cracked_section_centroid).moment_inertia_11 + self.width * self.bottom_cracked_section_centroid * (self.bottom_cracked_section_centroid/2)** 2 + (self.elastic_modulus_ratio-1)*sum(self.reinforcement_dict["BOTTOM"]["bar_area"])* (max(self.bottom_effective_height)-self.bottom_cracked_section_centroid)**2
     
     #This can be improved if we calculated it including the opposite reinforcement in the beam
     @property
