@@ -428,7 +428,17 @@ class BeamSection:
             "area": self.cross_section.cross_area
         } 
     
-     
+    ##Minimum reinforcement
+
+    def minimum_reinforcement_ratio(self) -> float:
+        return round(max(0.25*sqrt(self.concrete.fc),1.4)/self.steel.fy,4)
+    
+    def minimum_top_area(self) -> float:
+        return self.minimum_reinforcement_ratio()*self.top_effective_height[0]*self.width
+    
+    def minimum_bottom_area(self) -> float:
+        return self.minimum_reinforcement_ratio()*self.bottom_effective_height[0]*self.width
+    
     #Display Methods
     def get_properties(self):
         properties = {}
@@ -447,6 +457,11 @@ class BeamSection:
     @top_flexural_ro.setter
     def top_flexural_ro(self,reinforcement):
         self.top_reinforcement = reinforcement
+    
+
+    
+
+
     
 
     #Class properties region

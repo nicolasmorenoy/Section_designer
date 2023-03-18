@@ -30,6 +30,9 @@ if __name__ == '__main__':
     print(beam.reinforcement_dict["TOP"]["bar_diameters"],beam.reinforcement_dict["TOP"]["bar_area"], beam.top_flexural_ro, beam.top_effective_height, sep="\n")
     print(beam.top_lambda_delta)
     print(beam.top_deflexion_multiplier(100))
+    print(beam.minimum_reinforcement_ratio())
+    print(beam.minimum_bottom_area(), beam.minimum_reinforcement_ratio())
+
     # top_rebar= Reinforcement(5,Rebar(5),ReinforcementLocationType.TOP)
     # beam.get_reinforcement(top_rebar)
     # print(beam)
