@@ -349,24 +349,24 @@ class BeamSection:
     
     ##Nominal Resistance
     @property
-    def simple_top_nominal_moment_strenght(self) ->float:
-        return sum(list(map(self.__get_simple_nominal_moment_strenght,self.top_flexural_ro, self.top_effective_height)))
+    def simple_top_nominal_moment_strength(self) ->float:
+        return sum(list(map(self.__get_simple_nominal_moment_strength,self.top_flexural_ro, self.top_effective_height)))
 
     @property
-    def simple_bottom_nominal_moment_strenght(self) ->float:
-        return sum(list(map(self.__get_simple_nominal_moment_strenght,self.bottom_flexural_ro, self.bottom_effective_height)))
+    def simple_bottom_nominal_moment_strength(self) ->float:
+        return sum(list(map(self.__get_simple_nominal_moment_strength,self.bottom_flexural_ro, self.bottom_effective_height)))
     
     @property
-    def nominal_concrete_shear_strenght(self) ->float:
+    def nominal_concrete_shear_strength(self) ->float:
         return 0.17 * sqrt(self.concrete.fc) * self.width * max(self.bottom_effective_height) * 1000
     
     @property
-    def nominal_reinforcement_shear_strenght(self) ->float:
+    def nominal_reinforcement_shear_strength(self) ->float:
         return sum(self.reinforcement_dict["TRANSVERSE"]["bar_area"]) * self.steel.fy * max(self.bottom_effective_height) / self.reinforcement_dict["TRANSVERSE"]["spacing"] * 1000
     
     @property
-    def nominal_shear_strenght(self) ->float:
-        return self.nominal_concrete_shear_strenght + self.nominal_reinforcement_shear_strenght
+    def nominal_shear_strength(self) ->float:
+        return self.nominal_concrete_shear_strength + self.nominal_reinforcement_shear_strength
     
     ##Cracked Section
     @property
@@ -393,7 +393,7 @@ class BeamSection:
     def __get_flexural_ro(self, rebar_area:float, effective_height: float) ->float:
         return rebar_area/(self.width*effective_height)
 
-    def __get_simple_nominal_moment_strenght(self, flexural_ro: float, effective_height: float) ->float:
+    def __get_simple_nominal_moment_strength(self, flexural_ro: float, effective_height: float) ->float:
         return self.steel.fy * flexural_ro * self.width * effective_height**2 * (1-0.59*flexural_ro*self.steel.fy/self.concrete.fc) * 1000
     
     def __get__effective_inertia(self, Ma: float, Icr: float) ->float:
@@ -449,8 +449,8 @@ class BeamSection:
     
     ##Change Properties Methods
 
-    @simple_bottom_nominal_moment_strenght.setter
-    def simple_bottom_nominal_moment_strenght(self,reinforcement):
+    @simple_bottom_nominal_moment_strength.setter
+    def simple_bottom_nominal_moment_strength(self,reinforcement):
         self.top_reinforcement = reinforcement
     
 
@@ -482,17 +482,17 @@ class BeamSection:
     #     - Steel Reinforcement fy: {self.steel.fy}
 
     #     Nominal Properties:
-    #     - Top nominal moment strenght: {round(self.simple_top_nominal_moment_strenght,2)} kN-m.
-    #     - Bottom nominal moment strenght: {round(self.simple_bottom_nominal_moment_strenght, 2)} kN-m.
-    #     - Shear nominal strenght: {round(self.nominal_shear_strenght)} kN.
+    #     - Top nominal moment strength: {round(self.simple_top_nominal_moment_strength,2)} kN-m.
+    #     - Bottom nominal moment strength: {round(self.simple_bottom_nominal_moment_strength, 2)} kN-m.
+    #     - Shear nominal strength: {round(self.nominal_shear_strength)} kN.
     #     """
 
     def __str__(self):
         return f"""Reinforced concrete beam properties:
         Nominal Properties:
-        - Top nominal moment strenght: {round(self.simple_top_nominal_moment_strenght,2)} kN-m.
-        - Bottom nominal moment strenght: {round(self.simple_bottom_nominal_moment_strenght, 2)} kN-m.
-        - Shear nominal strenght: {round(self.nominal_shear_strenght)} kN.
+        - Top nominal moment strength: {round(self.simple_top_nominal_moment_strength,2)} kN-m.
+        - Bottom nominal moment strength: {round(self.simple_bottom_nominal_moment_strength, 2)} kN-m.
+        - Shear nominal strength: {round(self.nominal_shear_strength)} kN.
         """
 
         

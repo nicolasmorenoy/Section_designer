@@ -1,3 +1,4 @@
+viktor==14.1.0
 anyio==3.6.1
 asttokens==2.0.8
 autopep8==1.7.0
@@ -33,7 +34,6 @@ parso==0.8.3
 pickleshare==0.7.5
 Pillow==9.2.0
 prompt-toolkit==3.0.31
-psutil==5.9.3
 pure-eval==0.2.2
 pycodestyle==2.9.1
 pydantic==1.10.2
