@@ -21,7 +21,9 @@ beam.set_section(geometry)
 
 
 if __name__ == '__main__':
-    print(beam)
+    print(beam.__dict__())
+    for key,value in beam.__dict__().items():
+            print(key,value)
     # print(beam.top_lambda_delta)
     # print(beam.top_deflexion_multiplier(100))
     # beam.set_aditional_reinforcement(Reinforcement(1,Rebar(8),ReinforcementLocationType.TOP))

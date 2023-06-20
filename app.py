@@ -60,8 +60,8 @@ class Controller(ViktorController):
 
         # return GeometryResult(beam_section)
     
-    @DataView("Nominal Stenght", duration_guess=1)
-    def get_geometry_results(self, params, **kwargs):
+    @DataView("Nominal Strenght", duration_guess=1)
+    def get_nominal_strenght(self, params, **kwargs):
         beam = BeamSection(params.beam_name)
         beam_concrete = Concrete(params.concrete_fc)
         steel = Steel(420)
@@ -77,9 +77,10 @@ class Controller(ViktorController):
         beam.set_reinforcement(stirrup_rebar)
         beam.set_steel(steel)
         beam.set_section(geometry)
-        data = DataGroup(
-            DataItem("Nominal Top Moment Strength", round(beam.simple_top_nominal_moment_strength,2))
-        )
+        data_list = list()
+        for key,value in beam.__dict__().items():
+            data_list.append(DataItem(key,value))
+        data = DataGroup(*data_list)
         return DataResult(data)
     
     # @DataView("OUTPUT", duration_guess=1)

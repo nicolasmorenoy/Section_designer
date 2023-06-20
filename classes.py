@@ -494,6 +494,11 @@ class BeamSection:
         - Bottom nominal moment strength: {round(self.simple_bottom_nominal_moment_strength, 2)} kN-m.
         - Shear nominal strength: {round(self.nominal_shear_strength)} kN.
         """
+    
+    def __dict__(self):
+        return{"Top nominal moment strength": str(round(self.simple_top_nominal_moment_strength,2))+ "kN-m.",
+        "Bottom nominal moment strength": str(round(self.simple_bottom_nominal_moment_strength, 2)) + "kN-m.",
+        "Shear nominal strength": str(round(self.nominal_shear_strength))+"kN."}
 
         
 
