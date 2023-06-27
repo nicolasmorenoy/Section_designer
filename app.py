@@ -60,7 +60,7 @@ class Controller(ViktorController):
 
         # return GeometryResult(beam_section)
     
-    @DataView("Nominal Strenght", duration_guess=1)
+    @DataView("Nominal Strength", duration_guess=1)
     def get_nominal_strenght(self, params, **kwargs):
         beam = BeamSection(params.beam_name)
         beam_concrete = Concrete(params.concrete_fc)
