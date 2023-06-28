@@ -71,6 +71,17 @@ class Rectangular(Geometry):
     def centroid22(self) -> float:
         return self.lenght_2 / 2
     
+    def __dict__(self):
+        return {
+            "length 1":self.lenght_1,
+            "length 2":self.lenght_2,
+            "gross area, Ag": self.cross_area,
+            "moment of inertia 1-1, Ig 1-1": self.moment_inertia_11,
+            "moment of inertia 2-2, Ig 2-2": self.moment_inertia_22,
+            "centroid 1-1": self.centroid11,
+            "centroid 2-2": self.centroid22
+            }
+    
 
 class Circular:
     """
@@ -269,6 +280,7 @@ class BeamSection:
         self.cross_section = cross_section
         self.width = cross_section.lenght_1
         self.height = cross_section.lenght_2
+        self.area = cross_section.cross_area
        
     def set_cover(self, cover: float):
         self.cover = cover
