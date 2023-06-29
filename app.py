@@ -7,7 +7,8 @@ from viktor.parametrization import (
     IntegerField,
     Tab,
     Text,
-    TextField
+    TextField,
+    LineBreak
     )
 from viktor.geometry import Material, SquareBeam
 from viktor.views import (
@@ -29,15 +30,19 @@ class Parametrization(ViktorParametrization):
     # )
     # geometry_input = Tab("Geometry")
     beam_name = TextField("Beam name", default="Beam_1")
-    height = NumberField("Height", default=0.3, step = 0.1, suffix="m")
-    width = NumberField("Width", default=0.2, step = 0.1, suffix="m")
-    cover = NumberField("Cover", default=0.04, step = 0.005, suffix="m")
-    length = NumberField("Length", default=5, min=1, step = 0.1, suffix="m")
     concrete_fc = IntegerField("Concrete fc", default=28, step = 3.5, suffix="MPa")
+    cover = NumberField("Cover", default=0.04, step = 0.005, suffix="m")
+    lb1 = LineBreak()
+    height = NumberField("Height", default=0.3, step = 0.1, suffix="m")
+    width = NumberField("Width", default=0.2, step = 0.1, suffix="m")    
+    length = NumberField("Length", default=5, min=1, step = 0.1, suffix="m")
+    lb2 = LineBreak()
     top_amount_bars = IntegerField("Top amount of bars", default=2, min=1, step = 1)
     top_bar_diameter = IntegerField("Top diameter of bars", default=5, min=1, step = 1)
+    lb3 = LineBreak()
     bottom_amount_bars = IntegerField("Bottom amount of bars", default=2, min=1, step = 1)
     bottom_bar_diameter = IntegerField("Bottom diameter of bars", default=5, min=1, step = 1)
+    lb4 = LineBreak()
     stirrup_bar_diameter = IntegerField("Stirrup diameter", default=3, min=1, step = 1)
     stirrup_leg_amount = IntegerField("Stirrup legs amount", default=2, min=1, step = 1)
     stirrup_spacing = NumberField("Spacing of stirrups", default=0.20, step = 0.01, suffix="m")
@@ -59,9 +64,10 @@ class Controller(ViktorController):
     #     beam_section = SquareBeam(params.width, params.height, params.length, material=concrete)
 
         # return GeometryResult(beam_section)
+
     
-    @DataView("Nominal Strength", duration_guess=1)
-    def get_nominal_strenght(self, params, **kwargs):
+    @staticmethod
+    def get_beam(params):
         beam = BeamSection(params.beam_name)
         beam_concrete = Concrete(params.concrete_fc)
         steel = Steel(420)
@@ -77,11 +83,31 @@ class Controller(ViktorController):
         beam.set_reinforcement(stirrup_rebar)
         beam.set_steel(steel)
         beam.set_section(geometry)
+
+        return beam
+    
+    @staticmethod
+    def data_extraction(data):
         data_list = list()
-        for key,value in beam.__dict__().items():
+        for key,value in data:
             data_list.append(DataItem(key,value))
         data = DataGroup(*data_list)
+        return data
+        
+    @DataView("Nominal Strength", duration_guess=1)
+    def get_nominal_strenght(self, params, **kwargs):
+        beam = self.get_beam(params)
+        data = self.data_extraction(beam.get_strength().items())
+
         return DataResult(data)
+    
+    @DataView("Cross Section Properties", duration_guess=1)
+    def get_cross_section_properties(self, params, **kwargs):
+        beam = self.get_beam(params)
+        data = self.data_extraction(beam.cross_section.__dict__().items())
+
+        return DataResult(data)
+
     
     # @DataView("OUTPUT", duration_guess=1)
     # def visualize_data(self, params, **kwargs):

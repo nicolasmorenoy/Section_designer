@@ -71,15 +71,16 @@ class Rectangular(Geometry):
     def centroid22(self) -> float:
         return self.lenght_2 / 2
     
+    
     def __dict__(self):
         return {
-            "length 1":self.lenght_1,
-            "length 2":self.lenght_2,
-            "gross area, Ag": self.cross_area,
-            "moment of inertia 1-1, Ig 1-1": self.moment_inertia_11,
-            "moment of inertia 2-2, Ig 2-2": self.moment_inertia_22,
-            "centroid 1-1": self.centroid11,
-            "centroid 2-2": self.centroid22
+            "length 1": str(round(self.lenght_1,2))+" m",
+            "length 2":str(round(self.lenght_2,2))+" m",
+            "gross area, Ag": str(round(self.cross_area, 4))+" m²",
+            "moment of inertia 1-1, Ig 1-1": str(round(self.moment_inertia_11,6))+ " m4",
+            "moment of inertia 2-2, Ig 2-2": str(round(self.moment_inertia_22,6))+ " m4",
+            "centroid 1-1": str(round(self.centroid11,2))+" m",
+            "centroid 2-2": str(round(self.centroid22,2))+" m"
             }
     
 
@@ -452,11 +453,10 @@ class BeamSection:
         return self.minimum_reinforcement_ratio()*self.bottom_effective_height[0]*self.width
     
     #Display Methods
-    def get_properties(self):
-        properties = {}
-        for k,v in self.__dict__.items():
-            properties[k] = v
-        return properties
+    def get_strength(self):
+        return{"Top nominal moment strength": str(round(self.simple_top_nominal_moment_strength,2))+ "kN-m.",
+        "Bottom nominal moment strength": str(round(self.simple_bottom_nominal_moment_strength, 2)) + "kN-m.",
+        "Shear nominal strength": str(round(self.nominal_shear_strength))+"kN."}
 
     
     ##Change Properties Methods
@@ -499,13 +499,13 @@ class BeamSection:
     #     - Shear nominal strength: {round(self.nominal_shear_strength)} kN.
     #     """
 
-    def __str__(self):
-        return f"""Reinforced concrete beam properties:
-        Nominal Properties:
-        - Top nominal moment strength: {round(self.simple_top_nominal_moment_strength,2)} kN-m.
-        - Bottom nominal moment strength: {round(self.simple_bottom_nominal_moment_strength, 2)} kN-m.
-        - Shear nominal strength: {round(self.nominal_shear_strength)} kN.
-        """
+    # def __str__(self):
+    #     return f"""Reinforced concrete beam properties:
+    #     Nominal Properties:
+    #     - Top nominal moment strength: {round(self.simple_top_nominal_moment_strength,2)} kN-m.
+    #     - Bottom nominal moment strength: {round(self.simple_bottom_nominal_moment_strength, 2)} kN-m.
+    #     - Shear nominal strength: {round(self.nominal_shear_strength)} kN.
+    #     """
     
     def __dict__(self):
         return{"Top nominal moment strength": str(round(self.simple_top_nominal_moment_strength,2))+ "kN-m.",

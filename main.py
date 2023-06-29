@@ -21,8 +21,8 @@ beam.set_section(geometry)
 
 
 if __name__ == '__main__':
-    print(beam.cross_section.__dict__())
-#     print(beam.__dict__())
+#     print(beam.cross_section.__dict__())
+    print(beam.__dict__())
 #     for key,value in beam.__dict__().items():
 #             print(key,value)
     # print(beam.top_lambda_delta)
