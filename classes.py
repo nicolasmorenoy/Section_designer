@@ -454,10 +454,20 @@ class BeamSection:
     
     #Display Methods
     def get_strength(self):
-        return{"Top nominal moment strength": str(round(self.simple_top_nominal_moment_strength,2))+ "kN-m.",
+        return{
+        "Top nominal moment strength": str(round(self.simple_top_nominal_moment_strength,2))+ "kN-m.",
         "Bottom nominal moment strength": str(round(self.simple_bottom_nominal_moment_strength, 2)) + "kN-m.",
-        "Shear nominal strength": str(round(self.nominal_shear_strength))+"kN."}
+        "Shear nominal strength": str(round(self.nominal_shear_strength))+"kN."
+        }
 
+    def get_design_properties(self):
+        return{
+            "effective depth, d_top": str(round(self.top_effective_height[0],2))+ " m.",
+            "effective depth, d_bottom": str(round(self.top_effective_height[0],2))+ " m.",
+            "top flexural ratio, ro": str(round(self.sum_top_flexural_ro,4)),
+            "bottom flexural ratio, ro": str(round(self.sum_bottom_flexural_ro,4))
+
+        }
     
     ##Change Properties Methods
 

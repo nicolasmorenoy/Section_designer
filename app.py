@@ -92,6 +92,12 @@ class Controller(ViktorController):
             data_list.append(DataItem(key,value))
         data = DataGroup(*data_list)
         return data
+    
+    # @GeometryView("My 3D model", duration_guess=1) #First Tab
+    # def beam_visualisation(self, params, **kwargs):
+    #     beam = SquareBeam(length_x=params.geometry.length, length_y=params.geometry.width, length_z=params.geometry.height)
+    #     print("This is the current parametrization: ", params)
+    #     return GeometryResult(beam)
         
     @DataView("Nominal Strength", duration_guess=1)
     def get_nominal_strenght(self, params, **kwargs):
@@ -104,5 +110,12 @@ class Controller(ViktorController):
     def get_cross_section_properties(self, params, **kwargs):
         beam = self.get_beam(params)
         data = self.data_extraction(beam.cross_section.__dict__().items())
+
+        return DataResult(data)
+    
+    @DataView("Design Properties", duration_guess=1)
+    def get_design_properties(self, params, **kwargs):
+        beam = self.get_beam(params)
+        data = self.data_extraction(beam.get_design_properties().items())
 
         return DataResult(data)
