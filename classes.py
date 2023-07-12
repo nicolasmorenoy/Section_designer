@@ -1,6 +1,7 @@
 #Python imports
 from math import pi, sqrt
 from enum import Enum
+import drawsvg as draw
 
 
 
@@ -441,6 +442,13 @@ class BeamSection:
             "area": self.cross_section.cross_area
         } 
     
+
+    def draw_section(self) -> object:
+        d = draw.Drawing(self.width*2000, self.height*2000, origin='center')
+        r = draw.Rectangle(-self.width*500, -self.height*500, self.width*1000, self.height*1000, fill='#808080')
+        r.append_title("Beam Section")
+        d.append(r)
+        return d
     ##Minimum reinforcement
 
     def minimum_reinforcement_ratio(self) -> float:

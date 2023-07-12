@@ -1,4 +1,8 @@
+from io import StringIO
+
+
 from classes import *
+
 
 from viktor import ViktorController, Color
 from viktor.parametrization import (
@@ -17,10 +21,11 @@ from viktor.views import (
     DataView,
     DataGroup,
     DataItem,
-    DataResult
+    DataResult,
+    ImageView,
+    ImageResult
     )
-
-
+import drawsvg as draw
 
 class Parametrization(ViktorParametrization):
     info = Tab("Info")
@@ -99,6 +104,13 @@ class Controller(ViktorController):
     #     print("This is the current parametrization: ", params)
     #     return GeometryResult(beam)
         
+    
+    @ImageView("Image", duration_guess=1)
+    def beam_section_visualisation(self, params, **kwargs):
+        beam = self.get_beam(params)
+        d = beam.draw_section()
+        return ImageResult(StringIO(d.as_svg()))
+    
     @DataView("Nominal Strength", duration_guess=1)
     def get_nominal_strenght(self, params, **kwargs):
         beam = self.get_beam(params)
