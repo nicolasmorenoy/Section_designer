@@ -105,7 +105,7 @@ class Controller(ViktorController):
     #     return GeometryResult(beam)
         
     
-    @ImageView("Image", duration_guess=1)
+    @ImageView("Cross Section", duration_guess=1)
     def beam_section_visualisation(self, params, **kwargs):
         beam = self.get_beam(params)
         d = beam.draw_section()

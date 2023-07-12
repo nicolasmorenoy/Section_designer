@@ -395,8 +395,14 @@ class BeamSection:
     def bottom_lambda_delta(self) -> float:
         return self.__get_lambda_delta(self.sum_top_flexural_ro)
     
+    @property
+    def top_bar_spacing(self) -> float:
+        return self.__get_bar_spacing("TOP")
     
-   
+    @property
+    def bottom_bar_spacing(self) -> float:
+        return self.__get_bar_spacing("BOTTOM")
+     
         
  #Region Methods
     ##Internal Methods
@@ -416,7 +422,14 @@ class BeamSection:
     def __get_lambda_delta(self, ro) ->float:
         return 1/(1+50*ro)
     
+    def __get_number_of_bars(self, location) ->int: 
+        return sum(self.reinforcement_dict[location]["bar_amount"])
+    
+    def __get_bar_spacing(self, location) -> float:
+        return (self.width-self.cover-max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"])*2-max(self.reinforcement_dict[location]["bar_diameters"]))/self.__get_number_of_bars(location)
+    
     #Get Properties Methods
+
     def top_effective_inertia(self, Ma) -> float:
         if self.__get__effective_inertia(Ma, self.top_cracked_inertia) > self.cross_section.moment_inertia_11:
             return self.cross_section.moment_inertia_11
