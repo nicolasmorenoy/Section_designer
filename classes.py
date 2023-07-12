@@ -457,6 +457,7 @@ class BeamSection:
     
 
     def draw_section(self) -> object:
+        #//////////////////////////// Must be optimized //////////////////////////
         #Work Area
         d = draw.Drawing(self.width*2000, self.height*2000, origin='center')
         #Stirrups
@@ -466,8 +467,25 @@ class BeamSection:
         #Gross Section
         ag = draw.Rectangle(-self.width*500, -self.height*500, self.width*1000, self.height*1000, fill='#B0B0B0', stroke='grey')
         ag.append_title("Beam Gross Section")
+
+        #Bars
+        ##Corner Bars
+        ###Top Bars
+        sep_top = max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"])*500+max(self.reinforcement_dict["TOP"]["bar_diameters"])*500
+        tb1 = draw.Circle(-(self.width-self.cover*2)*500+sep_top, -(self.height-self.cover*2)*500+sep_top, max(self.reinforcement_dict["TOP"]["bar_diameters"])*500, fill="black")
+        tb2 = draw.Circle((self.width-self.cover*2)*500-sep_top, -(self.height-self.cover*2)*500+sep_top, max(self.reinforcement_dict["TOP"]["bar_diameters"])*500, fill="black")
+
+        sep_bot = max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"])*500+max(self.reinforcement_dict["BOTTOM"]["bar_diameters"])*500
+        bb1 = draw.Circle(-(self.width-self.cover*2)*500+sep_bot, (self.height-self.cover*2)*500-sep_bot, max(self.reinforcement_dict["BOTTOM"]["bar_diameters"])*500, fill="black")
+        bb2 = draw.Circle((self.width-self.cover*2)*500-sep_bot, (self.height-self.cover*2)*500-sep_bot, max(self.reinforcement_dict["BOTTOM"]["bar_diameters"])*500, fill="black")
+
+
         d.append(ag)
         d.append(s)
+        d.append(tb1)
+        d.append(tb2)
+        d.append(bb1)
+        d.append(bb2)
 
         return d
     ##Minimum reinforcement
