@@ -444,10 +444,18 @@ class BeamSection:
     
 
     def draw_section(self) -> object:
+        #Work Area
         d = draw.Drawing(self.width*2000, self.height*2000, origin='center')
-        r = draw.Rectangle(-self.width*500, -self.height*500, self.width*1000, self.height*1000, fill='#808080')
-        r.append_title("Beam Section")
-        d.append(r)
+        #Stirrups
+        s = draw.Rectangle(-(self.width-self.cover*2)*500, -(self.height-self.cover*2)*500, (self.width-self.cover*2)*1000, (self.height-self.cover*2)*1000, fill='none', stroke="#686868", stroke_width=max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"])*1000)
+        s.append_title("Stirrup")
+        
+        #Gross Section
+        ag = draw.Rectangle(-self.width*500, -self.height*500, self.width*1000, self.height*1000, fill='#B0B0B0', stroke='grey')
+        ag.append_title("Beam Gross Section")
+        d.append(ag)
+        d.append(s)
+
         return d
     ##Minimum reinforcement
 
