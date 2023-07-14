@@ -1,6 +1,6 @@
-from classes import BeamSection, Rebar, Reinforcement, Rectangular, Concrete, Steel, TransverseRebar, ReinforcementLocationType
+from beamSection import BeamSection, Rebar, Reinforcement, Rectangular, Concrete, Steel, TransverseRebar, ReinforcementLocationType
 
-top_rebar= Reinforcement(2,Rebar(5),ReinforcementLocationType.TOP)
+top_rebar= Reinforcement(3,Rebar(5),ReinforcementLocationType.TOP)
 bottom_rebar= Reinforcement(2,Rebar(5),ReinforcementLocationType.BOTTOM)
 stirrup_rebar = Reinforcement(2,TransverseRebar(3, 0.2),ReinforcementLocationType.TRANSVERSE)
 concrete = Concrete(28, EC_factor=4700)
@@ -22,6 +22,9 @@ beam.set_section(geometry)
 
 if __name__ == '__main__':
     print(beam.top_bar_spacing)
+    print(beam.reinforcement_dict["TOP"])
+    print(beam.top_bars_coordinates)
+    print(beam.bottom_bars_coordinates)
 #     print(beam.cross_section.__dict__())
     # print(beam.__dict__())
 #     for key,value in beam.__dict__().items():

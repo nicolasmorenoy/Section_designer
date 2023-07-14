@@ -17,7 +17,7 @@ from fastapi import status
 from fastapi import HTTPException
 
 #Section Designer App
-from classes import Rectangular
+from beamSection import Rectangular
 
 app = FastAPI()
 

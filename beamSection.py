@@ -1,259 +1,12 @@
 #Python imports
-from math import pi, sqrt
-from enum import Enum
+from math import sqrt
 import drawsvg as draw
 
+from geometry import *
+from materials import *
+from reinforcement import *
 
 
-#Geometry Section
-
-class GeometryType(Enum):
-    """
-    - Title:
-    GeometryType
-    - Description:
-        Class created to enumerate the geometric sections for the elements.
-    - Parameters:
-        None
-    """
-    RECTANGULAR = 1
-    CIRCULAR = 1
-
-class Geometry:
-    """
-    - Title:
-    Geometry
-    - Description:
-        Class created to encapsulate all the geometric sections.
-    - Parameters:
-        Geometry Type [Class]
-    """
-    def __init__(self, geometry_section: GeometryType) -> None:
-        self.geometry = geometry_section
-
-
-class Rectangular(Geometry):
-    """
-    - Title: 
-    Rectangular
-    - Description:
-        Class created as a category for a rectangular cross secction geometry of an element.
-    - Parameters:
-        - Lenght 1, 2: The two dimension of the cross rectangular section [m].
-    -  Properties:
-        - Cross sectional Area [m²].
-        - Moment of Inertia around axis 1 and axis 2 [m⁴].
-    """
-    def __init__(self, lenght_1: float, lenght_2: float) -> None:
-        super().__init__(GeometryType.RECTANGULAR)
-        self.lenght_1 = lenght_1
-        self.lenght_2 = lenght_2
-        
-
-    @property
-    def cross_area(self) ->float:
-        return self.lenght_1 * self.lenght_2
-    
-
-    @property
-    def moment_inertia_11(self) -> float:
-        return self.lenght_1*self.lenght_2**3/12
-    
-
-    @property
-    def moment_inertia_22(self) -> float:
-        return self.lenght_2*self.lenght_1**3/12
-    
-    @property
-    def centroid11(self) -> float:
-        return self.lenght_1 / 2
-    
-    @property
-    def centroid22(self) -> float:
-        return self.lenght_2 / 2
-    
-    
-    def __dict__(self):
-        return {
-            "length 1": str(round(self.lenght_1,2))+" m",
-            "length 2":str(round(self.lenght_2,2))+" m",
-            "gross area, Ag": str(round(self.cross_area, 4))+" m²",
-            "moment of inertia 1-1, Ig 1-1": str(round(self.moment_inertia_11,6))+ " m4",
-            "moment of inertia 2-2, Ig 2-2": str(round(self.moment_inertia_22,6))+ " m4",
-            "centroid 1-1": str(round(self.centroid11,2))+" m",
-            "centroid 2-2": str(round(self.centroid22,2))+" m"
-            }
-    
-
-class Circular:
-    """
-    - Title: 
-    Circular
-    - Description:
-        Class created as a category for a circular cross secction geometry of an element.
-    - Parameters:
-        - Diameter of the cross rectangular section [m].
-    - Properties:
-        - Cross sectional Area [m²].
-        - Moment of Inertia(pending) [m⁴].
-    """
-
-    def __init__(self, diameter: float) -> None:
-        self.diameter = diameter
-    
-
-    @property
-    def cross_area(self) ->float:
-        return self.diameter**2*pi/4
-    
-    @property
-    def centroid11(self) -> float:
-        return self.diameter / 2
-    
-    @property
-    def centroid22(self) -> float:
-        return self.diameter / 2
-
-
-#Region Materials
-class Concrete:
-    """
-    - Title: 
-    Concrete
-    - Description:
-    Class that describe the physical properties of the Concrete.
-    - Parameters:
-        - f'c = specified compressive strength og concrete [MPa]
-        - ecu = maximum usable strain at extreme concrete compression fiber
-    - Properties:
-        -Modulus of elasticity of concrete [MPa].
-        -Cracking stress of concrete
-    """
-
-
-    def __init__(self, fc: float = 28, ecu: float = 0.003, EC_factor: int = 3900) -> None:
-        self.fc = fc
-        self.ecu = ecu
-        self.EC_factor = EC_factor
-    
-    
-    @property
-    def elastic_modulus(self) ->float:
-        return self.EC_factor*sqrt(self.fc)
-    
-    @property
-    def cracking_stress(self) -> float:
-        return 0.62*sqrt(self.fc)
-
-class Steel:
-    """
-    - Title: 
-    Steel
-    - Description:
-    Class that describe the physical properties of the Steel.
-    - Parameters:
-        - fy = specified yield strength of reinforcement [MPa]
-        - ES = Modulus of elasticity of reinforcement [MPa]
-    """
-
-    def __init__(self, fy: float = 420, ES: float = 200000) -> None:
-        self.fy = fy
-        self.ES = ES
-   
-
-#Reinforcement
-class ReinforcementLocationType(Enum):
-    """
-    - Title:
-    ReinforcementLocationType
-    - Description:
-        Class created to enumerate the Reinforcement possible location on the element.
-    - Parameters:
-        None
-    """
-    TOP = 1
-    BOTTOM = 2
-    TRANSVERSE = 3
-
-class ReinforcementLocation():
-    """
-    - Title:
-    Geometry
-    - Description:
-        Class created to encapsulate the location of the reinforcement in the element.
-    - Parameters:
-        Reinforcement location Type [Class]
-    """
-    def __init__(self, reinforcement_location: ReinforcementLocationType) -> None:
-        self.location = reinforcement_location
-        
-class Rebar:
-    """
-    - Title: 
-    Reinforcement
-    - Description:
-    Class that took the diameter and gives back the properties of the cross section of reinforcement.
-    - Parameters:
-        - bar number = Number of the bar acording to the US Standar : #/8
-    - Properties:
-        - bar diameter = Diameter of the bar that correspond to the number of the bar divide by 8 and then multiplied for 0.0254 m [m].
-        - bar area = Cross sectional Area of the bar [m²].
-    """
-
-    def __init__(self, bar_number: int) -> None:
-        self.bar_number = bar_number
-    
-    @property
-    def diameter(self) ->float:
-        return self.bar_number/8*.0254
-
-    @property
-    def area(self) ->float:
-        return Circular(self.diameter).cross_area
-
-class TransverseRebar(Rebar):
-    """
-    - Title: 
-    Trasnverse Reinforcement
-    - Description:
-    Class that inherits the cross section properties of the Reinforcement Class and adds a new parameter (spacing)
-    - Parameters:
-        - bar number = Number of the bar acording to the US Standar : #/8
-        - spacing: longitudinal spacing of the transverse reinforcement.
-    - Properties:
-        - bar diameter = Diameter of the bar that correspond to the number of the bar divide by 8 and then multiplied for 0.0254 [m].
-        - bar area = Cross sectional Area of the bar [m²].
-    """
-
-    def __init__(self, bar_number: int, spacing: float) -> None:
-        self.spacing = spacing
-        super().__init__(bar_number)
-    
-
-class Reinforcement(ReinforcementLocation):
-    """
-    - Title: 
-    Reinforcement Properties
-    - Description:
-    Class that gives the total amount of rebar area. 
-    - Parameters:
-        - bar amount = Amount of reinforcement bars. [Number]
-        - reinforcement: Instance of the Reinforcement or Transverse Reinforcement class.
-    - Properties:
-        - total rebar area = Cross sectional Area of the total amount of rebar [m²].
-    """
-
-    def __init__(self, bar_amount: int, reinforcement: Rebar, location: ReinforcementLocationType) -> None:
-        self.bar_amount = bar_amount
-        self.reinforcement = reinforcement
-        super().__init__(location)
-    
-    @property
-    def area(self) ->float:
-        return self.bar_amount * self.reinforcement.area
-            
-
-#Section designer region
 class BeamSection:
     """
     - Title: 
@@ -402,6 +155,14 @@ class BeamSection:
     @property
     def bottom_bar_spacing(self) -> float:
         return self.__get_bar_spacing("BOTTOM")
+    
+    @property
+    def top_bars_coordinates(self) -> list:
+        return self.__get_bars_x_coordinates("TOP", self.top_bar_spacing )
+    
+    @property
+    def bottom_bars_coordinates(self) -> list:
+        return self.__get_bars_x_coordinates("BOTTOM", self.bottom_bar_spacing )
      
         
  #Region Methods
@@ -426,7 +187,21 @@ class BeamSection:
         return sum(self.reinforcement_dict[location]["bar_amount"])
     
     def __get_bar_spacing(self, location) -> float:
-        return (self.width-self.cover-max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"])*2-max(self.reinforcement_dict[location]["bar_diameters"]))/self.__get_number_of_bars(location)
+        return (self.width-self.cover*2-max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"])*2-max(self.reinforcement_dict[location]["bar_diameters"]))/(self.__get_number_of_bars(location)-1)
+    
+    def __get_first_x(self, location) -> float:
+        if sum(self.reinforcement_dict[location]["bar_amount"]) == 1:
+            return self.width/2
+        else:
+            return self.reinforcement_dict[location]["bar_diameters"][0]/2+self.reinforcement_dict["TRANSVERSE"]["bar_diameters"][0]+self.cover
+    
+    def __get_bars_x_coordinates(self, location:str, spacing:float) ->list:
+        n=0
+        coordinates = []
+        for _ in range(sum(self.reinforcement_dict[location]["bar_amount"])):
+            coordinates.append(n*spacing+self.__get_first_x(location))
+            n+=1
+        return coordinates
     
     #Get Properties Methods
 

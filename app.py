@@ -1,7 +1,7 @@
 from io import StringIO
 
 
-from classes import *
+from beamSection import *
 
 
 from viktor import ViktorController, Color

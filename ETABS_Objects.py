@@ -1,5 +1,5 @@
 import pandas as pd
-from classes import *
+from beamSection import *
 
 section_dict = {}
 sections_resume = []
