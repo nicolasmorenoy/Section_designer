@@ -187,7 +187,10 @@ class BeamSection:
         return sum(self.reinforcement_dict[location]["bar_amount"])
     
     def __get_bar_spacing(self, location) -> float:
-        return (self.width-self.cover*2-max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"])*2-max(self.reinforcement_dict[location]["bar_diameters"]))/(self.__get_number_of_bars(location)-1)
+        if self.reinforcement_dict[location]["bar_amount"][0]==1:
+            return 0
+        else:
+            return (self.width-self.cover*2-self.reinforcement_dict["TRANSVERSE"]["bar_diameters"][0]*2-self.reinforcement_dict[location]["bar_diameters"][0])/(self.__get_number_of_bars(location)-1)
     
     def __get_first_x(self, location) -> float:
         if sum(self.reinforcement_dict[location]["bar_amount"]) == 1:
@@ -236,7 +239,8 @@ class BeamSection:
         #Work Area
         d = draw.Drawing(self.width*2000, self.height*2000, origin='center')
         #Stirrups
-        s = draw.Rectangle(-(self.width-self.cover*2)*500, -(self.height-self.cover*2)*500, (self.width-self.cover*2)*1000, (self.height-self.cover*2)*1000, fill='none', stroke="#686868", stroke_width=max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"])*1000)
+        s = draw.Rectangle(-(self.width-self.cover*2)*500+self.reinforcement_dict["TRANSVERSE"]["bar_diameters"][0]*500, -(self.height-self.cover*2)*500+self.reinforcement_dict["TRANSVERSE"]["bar_diameters"][0]*500, 
+                           (self.width-self.cover*2-self.reinforcement_dict["TRANSVERSE"]["bar_diameters"][0])*1000, (self.height-self.cover*2-self.reinforcement_dict["TRANSVERSE"]["bar_diameters"][0])*1000, fill='none', stroke="#686868", stroke_width=self.reinforcement_dict["TRANSVERSE"]["bar_diameters"][0]*1000)
         s.append_title("Stirrup")
         
         #Gross Section
@@ -246,21 +250,12 @@ class BeamSection:
         #Bars
         ##Corner Bars
         ###Top Bars
-        sep_top = max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"])*500+max(self.reinforcement_dict["TOP"]["bar_diameters"])*500
-        tb1 = draw.Circle(-(self.width-self.cover*2)*500+sep_top, -(self.height-self.cover*2)*500+sep_top, max(self.reinforcement_dict["TOP"]["bar_diameters"])*500, fill="black")
-        tb2 = draw.Circle((self.width-self.cover*2)*500-sep_top, -(self.height-self.cover*2)*500+sep_top, max(self.reinforcement_dict["TOP"]["bar_diameters"])*500, fill="black")
-
-        sep_bot = max(self.reinforcement_dict["TRANSVERSE"]["bar_diameters"])*500+max(self.reinforcement_dict["BOTTOM"]["bar_diameters"])*500
-        bb1 = draw.Circle(-(self.width-self.cover*2)*500+sep_bot, (self.height-self.cover*2)*500-sep_bot, max(self.reinforcement_dict["BOTTOM"]["bar_diameters"])*500, fill="black")
-        bb2 = draw.Circle((self.width-self.cover*2)*500-sep_bot, (self.height-self.cover*2)*500-sep_bot, max(self.reinforcement_dict["BOTTOM"]["bar_diameters"])*500, fill="black")
-
-
         d.append(ag)
         d.append(s)
-        d.append(tb1)
-        d.append(tb2)
-        d.append(bb1)
-        d.append(bb2)
+        for coordinate in self.top_bars_coordinates:
+            d.append(draw.Circle(-self.width*500+coordinate*1000, self.height*500-self.top_effective_height[0]*1000, self.reinforcement_dict["TOP"]["bar_diameters"][0]*500, fill="black"))
+        for coordinate in self.bottom_bars_coordinates:
+            d.append(draw.Circle(-self.width*500+coordinate*1000, -self.height*500+self.bottom_effective_height[0]*1000, self.reinforcement_dict["BOTTOM"]["bar_diameters"][0]*500, fill="black"))
 
         return d
     ##Minimum reinforcement

@@ -56,10 +56,10 @@ class Parametrization(ViktorParametrization):
     reinforcement.lb1 = LineBreak()
     
     reinforcement.top_amount_bars = IntegerField("Top amount of bars", default=2, min=1, step = 1)
-    reinforcement.top_bar_diameter = IntegerField("Top diameter of bars", default=5, min=1, step = 1)
+    reinforcement.top_bar_diameter = IntegerField("Top diameter # of bars", default=5, min=1, step = 1)
     reinforcement.lb2 = LineBreak()
     reinforcement.bottom_amount_bars = IntegerField("Bottom amount of bars", default=2, min=1, step = 1)
-    reinforcement.bottom_bar_diameter = IntegerField("Bottom diameter of bars", default=5, min=1, step = 1)
+    reinforcement.bottom_bar_diameter = IntegerField("Bottom diameter # of bars", default=5, min=1, step = 1)
     reinforcement.lb3 = LineBreak()
     reinforcement.stirrup_bar_diameter = IntegerField("Stirrup diameter", default=3, min=1, step = 1)
     reinforcement.stirrup_leg_amount = IntegerField("Stirrup legs amount", default=2, min=1, step = 1)
